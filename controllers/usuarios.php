@@ -2,15 +2,99 @@
 require_once BASE_PATH . '/middleware/auth.php';
 require_once BASE_PATH . '/services/Authz.php';
 require_once BASE_PATH . '/models/User.php';
+require_once BASE_PATH . '/services/PasswordService.php';
+require_once BASE_PATH . '/services/AuditService.php';
+require_once BASE_PATH . '/helpers/flash.php';
+require_once BASE_PATH . '/helpers/redirect.php';
 
 Authz::requireRoles(['administrador', 'recursos_humanos']);
 
 $page = $_GET['page'] ?? 'gestionar_usuarios';
+$flash = Flash::get();
+
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    $action = $_POST['action'] ?? '';
+    $currentUser = current_user();
+    $actorId = $currentUser['user_id'] ?? '';
+
+    if ($action === 'create_user') {
+        $username = trim($_POST['username'] ?? '');
+        $rol = trim($_POST['rol'] ?? 'colaborador');
+        $estado = '1';
+
+        if ($username === '' || $rol === '') {
+            Flash::error('Username y rol son obligatorios.');
+        } else {
+            $plain = PasswordService::generate();
+            $hash = PasswordService::hash($plain);
+            $newId = User::create($username, $hash, $rol, $estado, null);
+            if ($newId) {
+                Flash::success("Usuario creado. Credenciales: usuario={$username}, password={$plain}");
+                AuditService::log($actorId, 'usuario', $newId, "Creó usuario {$username}");
+            } else {
+                Flash::error('No se pudo crear el usuario (posible username duplicado).');
+            }
+        }
+        redirect('gestionar_usuarios');
+    }
+
+    if ($action === 'update_role_state') {
+        $userId = $_POST['user_id'] ?? '';
+        $rol = trim($_POST['rol'] ?? '');
+        $estado = trim($_POST['estado'] ?? '1');
+        if ($userId && $rol !== '') {
+            if (User::updateRoleState($userId, $rol, $estado)) {
+                Flash::success('Rol/estado actualizados.');
+                AuditService::log($actorId, 'usuario', $userId, "Actualizó rol/estado a {$rol}/{$estado}");
+            } else {
+                Flash::error('No se pudo actualizar rol/estado.');
+            }
+        } else {
+            Flash::error('Faltan datos para actualizar rol/estado.');
+        }
+        redirect('gestionar_usuarios');
+    }
+
+    if ($action === 'toggle_estado') {
+        $userId = $_POST['user_id'] ?? '';
+        $estadoActual = $_POST['estado_actual'] ?? '1';
+        if ($userId) {
+            $nuevo = ($estadoActual === '1') ? '0' : '1';
+            if (User::toggleEstado($userId, $nuevo)) {
+                Flash::success('Estado actualizado.');
+                AuditService::log($actorId, 'usuario', $userId, "Cambio estado a {$nuevo}");
+            } else {
+                Flash::error('No se pudo cambiar el estado.');
+            }
+        } else {
+            Flash::error('Falta user_id.');
+        }
+        redirect('gestionar_usuarios');
+    }
+
+    if ($action === 'change_pw') {
+        $userId = $_POST['user_id'] ?? '';
+        $newPw = trim($_POST['new_password'] ?? '');
+        if ($userId && $newPw !== '') {
+            $hash = PasswordService::hash($newPw);
+            if (User::setPassword($userId, $hash)) {
+                Flash::success("Contraseña actualizada. Nueva password: {$newPw}");
+                AuditService::log($actorId, 'password', $userId, 'Cambio de contraseña');
+            } else {
+                Flash::error('No se pudo actualizar la contraseña.');
+            }
+        } else {
+            Flash::error('Debe seleccionar usuario y nueva contraseña.');
+        }
+        redirect('cambiar_pw');
+    }
+}
 
 if ($page === 'cambiar_pw') {
     $users = User::all();
     render('gestionar_usuarios/cambiar_pw.php', [
         'users' => $users,
+        'flash' => $flash,
     ]);
     return;
 }
@@ -18,5 +102,6 @@ if ($page === 'cambiar_pw') {
 $users = User::all();
 render('gestionar_usuarios/index.php', [
     'users' => $users,
+    'flash' => $flash,
 ]);
 
