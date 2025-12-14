@@ -62,6 +62,5 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     <p class="auth-hint">Si no puedes entrar, pide a RRHH que te regenere contraseña.</p>
   </div>
-
 </body>
 </html>
