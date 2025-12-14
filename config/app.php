@@ -4,7 +4,9 @@ if (session_status() === PHP_SESSION_NONE) {
 }
 
 define('BASE_PATH', __DIR__ . '/..');
-define('BASE_URL', '/SEMESTRAL-CAPITAL-HUMANO/public');
+
+$baseUrl = rtrim(str_replace('\\', '/', dirname($_SERVER['SCRIPT_NAME'])), '/');
+define('BASE_URL', $baseUrl);
 
 date_default_timezone_set('UTC');
 
