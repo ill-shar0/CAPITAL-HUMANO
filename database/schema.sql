@@ -1,3 +1,6 @@
+CREATE DATABASE IF NOT EXISTS capital_humano CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+USE capital_humano;
+
 CREATE TABLE IF NOT EXISTS usuarios (
   user_id VARCHAR(36) PRIMARY KEY DEFAULT (CAST(UUID_SHORT() AS CHAR)),
   username VARCHAR(100) NOT NULL UNIQUE,
@@ -11,7 +14,7 @@ CREATE TABLE IF NOT EXISTS usuarios (
 
 CREATE TABLE IF NOT EXISTS colaboradores (
   colab_id VARCHAR(36) PRIMARY KEY DEFAULT (CAST(UUID_SHORT() AS CHAR)),
-  colab_ primer_nombre VARCHAR(100) NOT NULL,
+  colab_primer_nombre VARCHAR(100) NOT NULL,
   segundo_nombre VARCHAR(100),
   colab_apellido_paterno VARCHAR(100) NOT NULL,
   colab_apellido_materno VARCHAR(100),
@@ -106,6 +109,6 @@ CREATE TABLE IF NOT EXISTS resueltos (
 ) ;
 
 CREATE INDEX idx_usuarios_username ON usuarios (username);
-CREATE INDEX idx_colaboradores_cedula ON colaboradores (cedula);
-CREATE INDEX idx_asistencias_colab_fecha ON asistencias (colab_id, fecha);
+CREATE INDEX idx_colaboradores_cedula ON colaboradores (colab_cedula);
+CREATE INDEX idx_asistencias_colab_fecha ON asistencias (asis_colab_id, asis_fecha);
 
