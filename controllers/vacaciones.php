@@ -5,6 +5,7 @@ require_once BASE_PATH . '/models/Vacacion.php';
 require_once BASE_PATH . '/models/Colaborador.php';
 require_once BASE_PATH . '/models/Resuelto.php';
 require_once BASE_PATH . '/services/AuditService.php';
+require_once BASE_PATH . '/services/PdfService.php';
 
 Authz::requireRoles(['administrador', 'recursos_humanos']);
 
@@ -73,12 +74,40 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $inicio = $_POST['periodo_inicio'] ?? '';
         $fin = $_POST['periodo_fin'] ?? '';
         if ($colabId && $dias && $inicio && $fin) {
-            $newId = Resuelto::create($colabId, $dias, $inicio, $fin, '');
-            if ($newId) {
-                $messages[] = 'Resuelto creado.';
-                AuditService::log($actorId, 'resuelto', $newId, "Creó resuelto colab {$colabId}");
+            $vac = Vacacion::findByColabId($colabId);
+            if (!$vac) {
+                $errors[] = 'No existen datos de vacaciones para este colaborador.';
             } else {
-                $errors[] = 'No se pudo crear el resuelto.';
+                $disponibles = max(0, (int)$vac['vac_dias_vacaciones_validos'] - (int)$vac['vac_dias_vacaciones_tomados']);
+                $diasNum = (int)$dias;
+                if ($diasNum < 7) {
+                    $errors[] = 'Las vacaciones solicitadas deben ser mínimo 7 días.';
+                } elseif ($diasNum > $disponibles) {
+                    $errors[] = 'No hay días suficientes. Disponibles: ' . $disponibles;
+                } else {
+                    $colab = Colaborador::find($colabId);
+                    $pdfPath = PdfService::generateResuelto([
+                        'colab_id' => $colabId,
+                        'nombre' => $colab ? ($colab['primer_nombre'] . ' ' . $colab['apellido_paterno']) : '',
+                        'cedula' => $colab['cedula'] ?? '',
+                        'cargo' => $colab['car_cargo'] ?? '',
+                        'dias' => $diasNum,
+                        'inicio' => $inicio,
+                        'fin' => $fin,
+                    ]);
+
+                    $newId = Resuelto::create($colabId, $dias, $inicio, $fin, $pdfPath);
+                    if ($newId) {
+                        $tomados = (int)$vac['vac_dias_vacaciones_tomados'] + $diasNum;
+                        $validosRestantes = max(0, (int)$vac['vac_dias_vacaciones_validos'] - $diasNum);
+                        Vacacion::updateVacacion($vac['vac_id'], $vac['vac_dias_trabajados'], $validosRestantes, $vac['vac_estado_vacaciones'], (string)$tomados);
+
+                        $messages[] = 'Resuelto creado y PDF generado.';
+                        AuditService::log($actorId, 'resuelto', $newId, "Creó resuelto colab {$colabId}");
+                    } else {
+                        $errors[] = 'No se pudo crear el resuelto.';
+                    }
+                }
             }
         } else {
             $errors[] = 'Faltan datos para el resuelto.';

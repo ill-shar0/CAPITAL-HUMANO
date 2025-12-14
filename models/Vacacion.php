@@ -3,6 +3,19 @@ require_once BASE_PATH . '/config/db.php';
 
 class Vacacion
 {
+    public static function findByColabId(string $colabId): ?array
+    {
+        try {
+            $db = get_db();
+            $stmt = $db->prepare('SELECT * FROM vacaciones WHERE vac_colab_id = :colab LIMIT 1');
+            $stmt->execute(['colab' => $colabId]);
+            $row = $stmt->fetch();
+            return $row ?: null;
+        } catch (Throwable $e) {
+            return null;
+        }
+    }
+
     public static function create(string $colabId, string $diasTrab, string $diasValidos, string $estado, string $diasTomados = '0'): ?string
     {
         try {

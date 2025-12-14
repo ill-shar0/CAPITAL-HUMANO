@@ -1,6 +1,9 @@
 CREATE DATABASE capital_humano;
 
 USE capital_humano;
+CREATE DATABASE capital_humano;
+
+USE capital_humano;
 
 CREATE TABLE IF NOT EXISTS usuarios (
   user_id VARCHAR(36) PRIMARY KEY DEFAULT (CAST(UUID_SHORT() AS CHAR)),
@@ -122,3 +125,22 @@ CREATE INDEX idx_usuarios_username ON usuarios (username);
 CREATE INDEX idx_colaboradores_cedula ON colaboradores (colab_cedula);
 CREATE INDEX idx_asistencias_colab_fecha ON asistencias (asis_colab_id, asis_fecha);
 
+INSERT INTO usuarios (
+  user_id,
+  username,
+  usu_password_hash,
+  usu_rol,
+  usu_estado_usuario,
+  usu_colab_id,
+  usu_fecha_creacion,
+  usu_ultima_actualizacion
+) VALUES (
+  CAST(UUID_SHORT() AS CHAR),
+  'admin1',
+  '<HASH_GENERADO>',
+  'AdminPass123',
+  '1',
+  NULL,
+  NOW(),
+  NOW()
+);
