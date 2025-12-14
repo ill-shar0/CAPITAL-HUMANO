@@ -121,6 +121,8 @@ CREATE INDEX idx_usuarios_username ON usuarios (username);
 CREATE INDEX idx_colaboradores_cedula ON colaboradores (colab_cedula);
 CREATE INDEX idx_asistencias_colab_fecha ON asistencias (asis_colab_id, asis_fecha);
 
+-- User: admin1
+-- Password: AdminPass123
 INSERT INTO usuarios (
   user_id,
   username,
@@ -133,8 +135,8 @@ INSERT INTO usuarios (
 ) VALUES (
   CAST(UUID_SHORT() AS CHAR),
   'admin1',
-  '<HASH_GENERADO>',
-  'AdminPass123',
+  '$2y$10$851PfJUKpz1OVZoC0HpJTuHcvjTGpO5Aark7hTYk3cstUGb8MHPee',
+  'administrador',
   '1',
   NULL,
   NOW(),
