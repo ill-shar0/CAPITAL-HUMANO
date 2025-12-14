@@ -3,6 +3,166 @@ require_once BASE_PATH . '/config/db.php';
 
 class Colaborador
 {
+    public static function create(array $data): ?string
+    {
+        try {
+            $db = get_db();
+            $sql = 'INSERT INTO colaboradores (
+                        `colab_ primer_nombre`, segundo_nombre, colab_apellido_paterno, colab_apellido_materno,
+                        colab_sexo, colab_cedula, colab_fecha_nac, colab_correo, colab_telefono, colab_celular,
+                        colab_direccion, colab_foto_perfil, colab_car_sueldo, colab_car_cargo,
+                        colab_estado_colaborador, colab_fecha_creacion, colab_ultima_actualizacion
+                    ) VALUES (
+                        :primer_nombre, :segundo_nombre, :apellido_paterno, :apellido_materno,
+                        :sexo, :cedula, :fecha_nac, :correo, :telefono, :celular,
+                        :direccion, :foto, :sueldo, :cargo,
+                        :estado, :fecha, :fecha
+                    )';
+            $stmt = $db->prepare($sql);
+            $now = date('Y-m-d H:i:s');
+            $stmt->execute([
+                'primer_nombre' => $data['primer_nombre'] ?? '',
+                'segundo_nombre' => $data['segundo_nombre'] ?? '',
+                'apellido_paterno' => $data['apellido_paterno'] ?? '',
+                'apellido_materno' => $data['apellido_materno'] ?? '',
+                'sexo' => $data['sexo'] ?? '',
+                'cedula' => $data['cedula'] ?? '',
+                'fecha_nac' => $data['fecha_nac'] ?? '',
+                'correo' => $data['correo'] ?? '',
+                'telefono' => $data['telefono'] ?? '',
+                'celular' => $data['celular'] ?? '',
+                'direccion' => $data['direccion'] ?? '',
+                'foto' => $data['foto_perfil'] ?? '',
+                'sueldo' => $data['car_sueldo'] ?? '',
+                'cargo' => $data['car_cargo'] ?? '',
+                'estado' => $data['estado_colaborador'] ?? 'Activo',
+                'fecha' => $now,
+            ]);
+            return $db->lastInsertId();
+        } catch (Throwable $e) {
+            return null;
+        }
+    }
+
+    public static function updateColab(string $id, array $data): bool
+    {
+        try {
+            $db = get_db();
+            $sql = 'UPDATE colaboradores SET
+                        `colab_ primer_nombre` = :primer_nombre,
+                        segundo_nombre = :segundo_nombre,
+                        colab_apellido_paterno = :apellido_paterno,
+                        colab_apellido_materno = :apellido_materno,
+                        colab_sexo = :sexo,
+                        colab_cedula = :cedula,
+                        colab_fecha_nac = :fecha_nac,
+                        colab_correo = :correo,
+                        colab_telefono = :telefono,
+                        colab_celular = :celular,
+                        colab_direccion = :direccion,
+                        colab_foto_perfil = :foto,
+                        colab_car_sueldo = :sueldo,
+                        colab_car_cargo = :cargo,
+                        colab_estado_colaborador = :estado,
+                        colab_ultima_actualizacion = :fecha
+                    WHERE colab_id = :id';
+            $stmt = $db->prepare($sql);
+            return $stmt->execute([
+                'primer_nombre' => $data['primer_nombre'] ?? '',
+                'segundo_nombre' => $data['segundo_nombre'] ?? '',
+                'apellido_paterno' => $data['apellido_paterno'] ?? '',
+                'apellido_materno' => $data['apellido_materno'] ?? '',
+                'sexo' => $data['sexo'] ?? '',
+                'cedula' => $data['cedula'] ?? '',
+                'fecha_nac' => $data['fecha_nac'] ?? '',
+                'correo' => $data['correo'] ?? '',
+                'telefono' => $data['telefono'] ?? '',
+                'celular' => $data['celular'] ?? '',
+                'direccion' => $data['direccion'] ?? '',
+                'foto' => $data['foto_perfil'] ?? '',
+                'sueldo' => $data['car_sueldo'] ?? '',
+                'cargo' => $data['car_cargo'] ?? '',
+                'estado' => $data['estado_colaborador'] ?? 'Activo',
+                'fecha' => date('Y-m-d H:i:s'),
+                'id' => $id,
+            ]);
+        } catch (Throwable $e) {
+            return false;
+        }
+    }
+
+    public static function moveToHistorial(string $colabId): bool
+    {
+        try {
+            $db = get_db();
+            $db->beginTransaction();
+
+            $colab = self::find($colabId);
+            if (!$colab) {
+                $db->rollBack();
+                return false;
+            }
+
+            $sqlHist = 'INSERT INTO historial_colaboradores (
+                his_col_id, his_col_primer_nombre, his_col_segundo_nombre, his_col_apellido_paterno,
+                his_col_apellido_materno, his_col_sexo, his_col_cedula, his_col_fecha_nac,
+                his_col_correo, his_col_telefono, his_col_celular, his_col_direccion,
+                his_col_foto_perfil, his_col_car_sueldo, his_col_car_cargo, his_col_estado_colaborador,
+                his_col_fecha_creacion, his_col_ultima_actualizacion, his_col_fecha_salida
+            ) VALUES (
+                :id, :primer_nombre, :segundo_nombre, :apellido_paterno,
+                :apellido_materno, :sexo, :cedula, :fecha_nac,
+                :correo, :telefono, :celular, :direccion,
+                :foto, :sueldo, :cargo, :estado,
+                :creacion, :actualizacion, :salida
+            )';
+            $stmtHist = $db->prepare($sqlHist);
+            $stmtHist->execute([
+                'id' => $colab['colab_id'],
+                'primer_nombre' => $colab['primer_nombre'],
+                'segundo_nombre' => $colab['segundo_nombre'],
+                'apellido_paterno' => $colab['apellido_paterno'],
+                'apellido_materno' => $colab['apellido_materno'],
+                'sexo' => $colab['sexo'],
+                'cedula' => $colab['cedula'],
+                'fecha_nac' => $colab['fecha_nac'],
+                'correo' => $colab['correo'],
+                'telefono' => $colab['telefono'] ?? '',
+                'celular' => $colab['celular'] ?? '',
+                'direccion' => $colab['direccion'] ?? '',
+                'foto' => $colab['foto_perfil'] ?? '',
+                'sueldo' => $colab['car_sueldo'] ?? '',
+                'cargo' => $colab['car_cargo'] ?? '',
+                'estado' => $colab['estado_colaborador'] ?? '',
+                'creacion' => $colab['fecha_creacion'] ?? '',
+                'actualizacion' => $colab['ultima_actualizacion'] ?? '',
+                'salida' => date('Y-m-d H:i:s'),
+            ]);
+
+            // Desactivar asignaciones
+            $sqlAssign = 'UPDATE colaborador_cargo
+                          SET col_carg_activo = "0",
+                              col_carg_ultima_actualizacion = :fecha
+                          WHERE col_carg_id = :colab';
+            $stmtAssign = $db->prepare($sqlAssign);
+            $stmtAssign->execute([
+                'fecha' => date('Y-m-d H:i:s'),
+                'colab' => $colabId,
+            ]);
+
+            // Eliminar colaborador
+            $stmtDel = $db->prepare('DELETE FROM colaboradores WHERE colab_id = :id');
+            $stmtDel->execute(['id' => $colabId]);
+
+            $db->commit();
+            return true;
+        } catch (Throwable $e) {
+            if (isset($db) && $db->inTransaction()) {
+                $db->rollBack();
+            }
+            return false;
+        }
+    }
     public static function all(): array
     {
         try {
