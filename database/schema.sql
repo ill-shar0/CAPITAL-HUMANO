@@ -1,8 +1,4 @@
 CREATE DATABASE capital_humano;
-
-USE capital_humano;
-CREATE DATABASE capital_humano;
-
 USE capital_humano;
 
 CREATE TABLE IF NOT EXISTS usuarios (
