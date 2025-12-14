@@ -5,8 +5,10 @@
 </div>
 
 <div class="actions-row">
-    <button class="btn primary">Registrar entrada</button>
-    <button class="btn">Registrar salida</button>
+    <form method="post">
+        <button name="accion" value="entrada">Registrar entrada</button>
+        <button name="accion" value="salida">Registrar salida</button>
+    </form>
 </div>
 <?php $content = ob_get_clean(); ?>
 
