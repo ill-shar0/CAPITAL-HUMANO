@@ -65,6 +65,7 @@
                     <th>Correo</th>
                     <th>Estado</th>
                     <th>Acciones</th>
+                    <th>Foto</th>
                 </tr>
             </thead>
             <tbody>
@@ -84,6 +85,17 @@
                                     <button class="btn-link danger" type="submit">Eliminar (historial)</button>
                                 </form>
                             </td>
+                            <td>
+                                <?php if (!empty($col['foto_perfil'])): ?>
+                                    <a href="<?= BASE_URL ?>/uploads/<?= htmlspecialchars($col['foto_perfil']) ?>" target="_blank">
+                                        <img src="<?= BASE_URL ?>/uploads/<?= htmlspecialchars($col['foto_perfil']) ?>"
+                                             style="width:40px;height:40px;object-fit:cover;border-radius:50%;">
+                                    </a>
+                                <?php else: ?>
+                                        —
+                                <?php endif; ?>
+                            </td>
+
                         </tr>
                     <?php endforeach; ?>
                 <?php else: ?>

@@ -243,57 +243,124 @@ class Colaborador
         }
     }
 
-    public static function filtrarParaReporte(array $filtros): array
-    {
-        try {
-            $db = get_db();
-            $condiciones = [];
-            $params = [];
+    public static function filtrarParaReporte(array $filtros, int $limit, int $offset): array
+{
+    try {
+        $db = get_db();
+        $condiciones[] = "colab_estado_colaborador = 'Activo'";
+        $params = [];
 
-            if (!empty($filtros['sexo'])) {
-                $condiciones[] = 'colab_sexo = :sexo';
-                $params['sexo'] = $filtros['sexo'];
-            }
-            if (!empty($filtros['nombre'])) {
-                $condiciones[] = '(`colab_ primer_nombre` LIKE :nombre OR segundo_nombre LIKE :nombre)';
-                $params['nombre'] = '%' . $filtros['nombre'] . '%';
-            }
-            if (!empty($filtros['apellido'])) {
-                $condiciones[] = '(colab_apellido_paterno LIKE :apellido OR colab_apellido_materno LIKE :apellido)';
-                $params['apellido'] = '%' . $filtros['apellido'] . '%';
-            }
-            if (!empty($filtros['salario_min'])) {
-                $condiciones[] = 'colab_car_sueldo >= :salario_min';
-                $params['salario_min'] = $filtros['salario_min'];
-            }
-            if (!empty($filtros['edad_min'])) {
-                $condiciones[] = 'TIMESTAMPDIFF(YEAR, STR_TO_DATE(colab_fecha_nac, "%Y-%m-%d"), CURDATE()) >= :edad_min';
-                $params['edad_min'] = $filtros['edad_min'];
-            }
-            if (!empty($filtros['edad_max'])) {
-                $condiciones[] = 'TIMESTAMPDIFF(YEAR, STR_TO_DATE(colab_fecha_nac, "%Y-%m-%d"), CURDATE()) <= :edad_max';
-                $params['edad_max'] = $filtros['edad_max'];
-            }
-
-            $where = $condiciones ? ('WHERE ' . implode(' AND ', $condiciones)) : '';
-
-            $sql = "SELECT 
-                        colab_id,
-                        `colab_ primer_nombre` AS primer_nombre,
-                        segundo_nombre,
-                        colab_apellido_paterno AS apellido_paterno,
-                        colab_apellido_materno AS apellido_materno,
-                        colab_sexo AS sexo,
-                        colab_car_sueldo AS car_sueldo 
-                    FROM colaboradores {$where}
-                    ORDER BY primer_nombre, apellido_paterno";
-            $stmt = $db->prepare($sql);
-            $stmt->execute($params);
-            return $stmt->fetchAll();
-        } catch (Throwable $e) {
-            return [];
+        if (!empty($filtros['sexo'])) {
+            $condiciones[] = 'colab_sexo = :sexo';
+            $params['sexo'] = $filtros['sexo'];
         }
+
+        if (!empty($filtros['nombre'])) {
+            $condiciones[] = '(`colab_ primer_nombre` LIKE :nombre OR segundo_nombre LIKE :nombre)';
+            $params['nombre'] = '%' . $filtros['nombre'] . '%';
+        }
+
+        if (!empty($filtros['apellido'])) {
+            $condiciones[] = '(colab_apellido_paterno LIKE :apellido OR colab_apellido_materno LIKE :apellido)';
+            $params['apellido'] = '%' . $filtros['apellido'] . '%';
+        }
+
+        if (!empty($filtros['salario_min'])) {
+            $condiciones[] = 'colab_car_sueldo >= :salario_min';
+            $params['salario_min'] = $filtros['salario_min'];
+        }
+
+        if (!empty($filtros['edad_min'])) {
+            $condiciones[] = 'TIMESTAMPDIFF(YEAR, STR_TO_DATE(colab_fecha_nac, "%Y-%m-%d"), CURDATE()) >= :edad_min';
+            $params['edad_min'] = (int)$filtros['edad_min'];
+        }
+
+        if (!empty($filtros['edad_max'])) {
+            $condiciones[] = 'TIMESTAMPDIFF(YEAR, STR_TO_DATE(colab_fecha_nac, "%Y-%m-%d"), CURDATE()) <= :edad_max';
+            $params['edad_max'] = (int)$filtros['edad_max'];
+        }
+
+        $where = $condiciones ? ('WHERE ' . implode(' AND ', $condiciones)) : '';
+
+        $sql = "SELECT 
+                    colab_id,
+                    `colab_ primer_nombre` AS primer_nombre,
+                    colab_apellido_paterno AS apellido_paterno,
+                    colab_sexo AS sexo,
+                    colab_car_sueldo AS car_sueldo
+                FROM colaboradores
+                {$where}
+                ORDER BY primer_nombre, apellido_paterno
+                LIMIT :limit OFFSET :offset";
+
+        $stmt = $db->prepare($sql);
+
+        foreach ($params as $k => $v) {
+            $stmt->bindValue(':' . $k, $v);
+        }
+
+        $stmt->bindValue(':limit', $limit, PDO::PARAM_INT);
+        $stmt->bindValue(':offset', $offset, PDO::PARAM_INT);
+
+        $stmt->execute();
+        return $stmt->fetchAll();
+    } catch (Throwable $e) {
+        return [];
     }
+}
+
+public static function contarParaReporte(array $filtros): int
+{
+    try {
+        $db = get_db();
+        $condiciones = [];
+        $params = [];
+
+        if (!empty($filtros['sexo'])) {
+            $condiciones[] = 'colab_sexo = :sexo';
+            $params['sexo'] = $filtros['sexo'];
+        }
+
+        if (!empty($filtros['nombre'])) {
+            $condiciones[] = '(`colab_ primer_nombre` LIKE :nombre OR segundo_nombre LIKE :nombre)';
+            $params['nombre'] = '%' . $filtros['nombre'] . '%';
+        }
+
+        if (!empty($filtros['apellido'])) {
+            $condiciones[] = '(colab_apellido_paterno LIKE :apellido OR colab_apellido_materno LIKE :apellido)';
+            $params['apellido'] = '%' . $filtros['apellido'] . '%';
+        }
+
+        if (!empty($filtros['salario_min'])) {
+            $condiciones[] = 'colab_car_sueldo >= :salario_min';
+            $params['salario_min'] = $filtros['salario_min'];
+        }
+
+        if (!empty($filtros['edad_min'])) {
+            $condiciones[] = 'TIMESTAMPDIFF(YEAR, STR_TO_DATE(colab_fecha_nac, "%Y-%m-%d"), CURDATE()) >= :edad_min';
+            $params['edad_min'] = (int)$filtros['edad_min'];
+        }
+
+        if (!empty($filtros['edad_max'])) {
+            $condiciones[] = 'TIMESTAMPDIFF(YEAR, STR_TO_DATE(colab_fecha_nac, "%Y-%m-%d"), CURDATE()) <= :edad_max';
+            $params['edad_max'] = (int)$filtros['edad_max'];
+        }
+
+        $where = $condiciones ? ('WHERE ' . implode(' AND ', $condiciones)) : '';
+
+        $sql = "SELECT COUNT(*) FROM colaboradores {$where}";
+        $stmt = $db->prepare($sql);
+
+        foreach ($params as $k => $v) {
+            $stmt->bindValue(':' . $k, $v);
+        }
+
+        $stmt->execute();
+        return (int)$stmt->fetchColumn();
+    } catch (Throwable $e) {
+        return 0;
+    }
+}
 
     public static function estadisticas(): array
     {
