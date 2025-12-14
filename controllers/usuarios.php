@@ -4,6 +4,7 @@ require_once BASE_PATH . '/services/Authz.php';
 require_once BASE_PATH . '/models/User.php';
 require_once BASE_PATH . '/services/PasswordService.php';
 require_once BASE_PATH . '/services/AuditService.php';
+require_once BASE_PATH . '/models/Colaborador.php';
 require_once BASE_PATH . '/helpers/flash.php';
 require_once BASE_PATH . '/helpers/redirect.php';
 
@@ -11,6 +12,12 @@ Authz::requireRoles(['administrador', 'recursos_humanos']);
 
 $page = $_GET['page'] ?? 'gestionar_usuarios';
 $flash = Flash::get();
+
+function flash_redirect(string $msg, string $type = 'error', string $target = 'gestionar_usuarios'): void
+{
+    $type === 'success' ? Flash::success($msg) : Flash::error($msg);
+    redirect($target);
+}
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $action = $_POST['action'] ?? '';
@@ -21,13 +28,34 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $username = trim($_POST['username'] ?? '');
         $rol = trim($_POST['rol'] ?? 'colaborador');
         $estado = '1';
+        $cedula = trim($_POST['cedula'] ?? '');
 
-        if ($username === '' || $rol === '') {
-            Flash::error('Username y rol son obligatorios.');
+        if ($username === '' || $rol === '' || $cedula === '') {
+            flash_redirect('Username, rol y cédula son obligatorios.');
+        }
+
+        $colab = Colaborador::findByCedula($cedula);
+        if (!$colab) {
+            flash_redirect('No existe un colaborador con esa cédula; primero registre el colaborador.');
+        }
+
+        $existing = User::findByColabId($colab['colab_id']);
+        if ($existing && $existing['estado_usuario'] === '1') {
+            flash_redirect('Este colaborador ya tiene una cuenta activa.');
+        }
+
+        $plain = PasswordService::generate();
+        $hash = PasswordService::hash($plain);
+
+        if ($existing && $existing['estado_usuario'] !== '1') {
+            $okPw = User::setPassword($existing['user_id'], $hash);
+            $okEstado = User::toggleEstado($existing['user_id'], '1');
+            $okPw && $okEstado
+                ? Flash::success("Cuenta reactivada. usuario={$existing['username']}, password={$plain}")
+                : Flash::error('No se pudo reactivar la cuenta existente.');
+            AuditService::log($actorId, 'usuario', $existing['user_id'], 'Reactivó usuario');
         } else {
-            $plain = PasswordService::generate();
-            $hash = PasswordService::hash($plain);
-            $newId = User::create($username, $hash, $rol, $estado, null);
+            $newId = User::create($username, $hash, $rol, $estado, $colab['colab_id']);
             if ($newId) {
                 Flash::success("Usuario creado. Credenciales: usuario={$username}, password={$plain}");
                 AuditService::log($actorId, 'usuario', $newId, "Creó usuario {$username}");

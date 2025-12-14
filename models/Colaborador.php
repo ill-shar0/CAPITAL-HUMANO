@@ -44,6 +44,40 @@ class Colaborador
         }
     }
 
+    public static function findByCedula(string $cedula): ?array
+    {
+        try {
+            $db = get_db();
+            $stmt = $db->prepare('SELECT 
+                    colab_id,
+                    colab_primer_nombre AS primer_nombre,
+                    segundo_nombre,
+                    colab_apellido_paterno AS apellido_paterno,
+                    colab_apellido_materno AS apellido_materno,
+                    colab_sexo AS sexo,
+                    colab_cedula AS cedula,
+                    colab_fecha_nac AS fecha_nac,
+                    colab_correo AS correo,
+                    colab_telefono AS telefono,
+                    colab_celular AS celular,
+                    colab_direccion AS direccion,
+                    colab_foto_perfil AS foto_perfil,
+                    colab_car_sueldo AS car_sueldo,
+                    colab_car_cargo AS car_cargo,
+                    colab_estado_colaborador AS estado_colaborador,
+                    colab_fecha_creacion AS fecha_creacion,
+                    colab_ultima_actualizacion AS ultima_actualizacion
+                FROM colaboradores
+                WHERE colab_cedula = :cedula
+                LIMIT 1');
+            $stmt->execute(['cedula' => $cedula]);
+            $row = $stmt->fetch();
+            return $row ?: null;
+        } catch (Throwable $e) {
+            return null;
+        }
+    }
+
     public static function updateColab(string $id, array $data): bool
     {
         try {

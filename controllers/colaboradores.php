@@ -57,36 +57,70 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             'estado_colaborador' => 'Activo',
         ];
 
-        if ($data['primer_nombre'] === '' || $data['apellido_paterno'] === '') {
-            Flash::error('Primer nombre y apellido paterno son obligatorios.');
-        } else {
-            $newId = Colaborador::create($data);
-            if ($newId) {
-                Flash::success('Colaborador creado.');
-                AuditService::log($actorId, 'colaborador', $newId, 'Creó colaborador');
+        $cedula = $data['cedula'];
 
-                if (($_POST['crear_usuario'] ?? '') === 'si') {
-                    $apellido = $data['apellido_paterno'];
-                    $usernameBase = strtolower(substr($data['primer_nombre'], 0, 1) . $apellido);
-                    $username = $usernameBase;
-                    $i = 1;
-                    while (User::findByUsername($username)) {
-                        $username = $usernameBase . $i;
-                        $i++;
-                    }
-                    $plain = PasswordService::generate();
-                    $hash = PasswordService::hash($plain);
-                    $userId = User::create($username, $hash, 'colaborador', '1', $newId);
-                    if ($userId) {
-                        Flash::success("Usuario creado para el colaborador. user={$username}, password={$plain}");
-                        AuditService::log($actorId, 'usuario', $userId, 'Creó usuario colaborador');
-                    } else {
-                        Flash::error('No se pudo crear el usuario del colaborador (username podría existir).');
-                    }
+        if ($data['primer_nombre'] === '' || $data['apellido_paterno'] === '' || $cedula === '') {
+            Flash::error('Primer nombre, apellido paterno y cédula son obligatorios.');
+            redirect('gestionar_colaboradores');
+        }
+
+        $colabExistente = Colaborador::findByCedula($cedula);
+        if ($colabExistente) {
+            $userExistente = User::findByColabId($colabExistente['colab_id']);
+            if ($userExistente) {
+                if (in_array($userExistente['rol'], ['administrador', 'recursos_humanos'], true)) {
+                    Flash::error('El colaborador ya existe con rol administrativo. Actualice su información.');
+                    redirect('ver_colaborador&id=' . $colabExistente['colab_id']);
                 }
-            } else {
-                Flash::error('No se pudo crear el colaborador.');
+                if ($userExistente['estado_usuario'] === '1') {
+                    Flash::error('El colaborador ya tiene una cuenta activa. Actualice su información.');
+                    redirect('ver_colaborador&id=' . $colabExistente['colab_id']);
+                }
+                // Rol colaborador, cuenta inactiva: reactivar
+                $plain = PasswordService::generate();
+                $hash = PasswordService::hash($plain);
+                $okPw = User::setPassword($userExistente['user_id'], $hash);
+                $okEstado = User::toggleEstado($userExistente['user_id'], '1');
+                if ($okPw && $okEstado) {
+                    Flash::success("Cuenta reactivada. user={$userExistente['username']}, password={$plain}");
+                    AuditService::log($actorId, 'usuario', $userExistente['user_id'], 'Reactivó usuario colaborador');
+                } else {
+                    Flash::error('No se pudo reactivar la cuenta existente.');
+                }
+                redirect('ver_colaborador&id=' . $colabExistente['colab_id']);
             }
+
+            // Existe colaborador sin usuario
+            Flash::success('El colaborador ya existe. Puede actualizar su información o crear usuario.');
+            redirect('ver_colaborador&id=' . $colabExistente['colab_id']);
+        }
+
+        $newId = Colaborador::create($data);
+        if ($newId) {
+            Flash::success('Colaborador creado.');
+            AuditService::log($actorId, 'colaborador', $newId, 'Creó colaborador');
+
+            if (($_POST['crear_usuario'] ?? '') === 'si') {
+                $apellido = $data['apellido_paterno'];
+                $usernameBase = strtolower(substr($data['primer_nombre'], 0, 1) . $apellido);
+                $username = $usernameBase;
+                $i = 1;
+                while (User::findByUsername($username)) {
+                    $username = $usernameBase . $i;
+                    $i++;
+                }
+                $plain = PasswordService::generate();
+                $hash = PasswordService::hash($plain);
+                $userId = User::create($username, $hash, 'colaborador', '1', $newId);
+                if ($userId) {
+                    Flash::success("Usuario creado para el colaborador. user={$username}, password={$plain}");
+                    AuditService::log($actorId, 'usuario', $userId, 'Creó usuario colaborador');
+                } else {
+                    Flash::error('No se pudo crear el usuario del colaborador (username podría existir).');
+                }
+            }
+        } else {
+            Flash::error('No se pudo crear el colaborador.');
         }
         redirect('gestionar_colaboradores');
     }
