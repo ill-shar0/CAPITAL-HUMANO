@@ -8,6 +8,17 @@
     <?php endif; ?>
 </div>
 
+<?php if (!empty($messages)): ?>
+    <?php foreach ($messages as $msg): ?>
+        <div class="alert alert-success"><?= htmlspecialchars($msg) ?></div>
+    <?php endforeach; ?>
+<?php endif; ?>
+<?php if (!empty($errors)): ?>
+    <?php foreach ($errors as $err): ?>
+        <div class="alert alert-error"><?= htmlspecialchars($err) ?></div>
+    <?php endforeach; ?>
+<?php endif; ?>
+
 <?php if ($colaborador): ?>
     <div class="grid two-cols">
         <div>

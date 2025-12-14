@@ -3,62 +3,72 @@ require_once BASE_PATH . '/middleware/auth.php';
 require_once BASE_PATH . '/services/Authz.php';
 require_once BASE_PATH . '/models/Asistencia.php';
 require_once BASE_PATH . '/models/Colaborador.php';
-require_once BASE_PATH . '/helpers/flash.php';
-require_once BASE_PATH . '/helpers/redirect.php';
 
 $page = $_GET['page'] ?? 'registrar_asistencia';
+$messages = [];
+$errors = [];
+
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    $action = $_POST['action'] ?? '';
+    $currentUser = current_user();
+    $actorId = $currentUser['user_id'] ?? '';
+
+    if ($action === 'create_asistencia') {
+        $colabId = $_POST['colab_id'] ?? ($currentUser['colab_id'] ?? '');
+        $fecha = $_POST['fecha'] ?? date('Y-m-d');
+        $horaEntrada = $_POST['hora_entrada'] ?? date('H:i:s');
+        $horaSalida = $_POST['hora_salida'] ?? null;
+        if ($colabId) {
+            $newId = Asistencia::create($colabId, $fecha, $horaEntrada, $horaSalida);
+            if ($newId) {
+                $messages[] = 'Asistencia registrada.';
+                AuditService::log($actorId, 'asistencia', $newId, "Registro asistencia colab {$colabId}");
+            } else {
+                $errors[] = 'No se pudo registrar la asistencia.';
+            }
+        } else {
+            $errors[] = 'Falta colaborador.';
+        }
+    }
+
+    if ($action === 'update_asistencia') {
+        $asisId = $_POST['asis_id'] ?? '';
+        $fecha = $_POST['fecha'] ?? '';
+        $horaEntrada = $_POST['hora_entrada'] ?? '';
+        $horaSalida = $_POST['hora_salida'] ?? null;
+        if ($asisId && $fecha && $horaEntrada) {
+            if (Asistencia::updateAsistencia($asisId, $fecha, $horaEntrada, $horaSalida)) {
+                $messages[] = 'Asistencia actualizada.';
+                AuditService::log($actorId, 'asistencia', $asisId, 'Actualizó asistencia');
+            } else {
+                $errors[] = 'No se pudo actualizar la asistencia.';
+            }
+        } else {
+            $errors[] = 'Faltan datos para actualizar.';
+        }
+    }
+
+    if ($action === 'delete_asistencia') {
+        $asisId = $_POST['asis_id'] ?? '';
+        if ($asisId) {
+            if (Asistencia::deleteAsistencia($asisId)) {
+                $messages[] = 'Asistencia eliminada.';
+                AuditService::log($actorId, 'asistencia', $asisId, 'Eliminó asistencia');
+            } else {
+                $errors[] = 'No se pudo eliminar.';
+            }
+        } else {
+            $errors[] = 'Falta asis_id.';
+        }
+    }
+}
 
 // Gestionar asistencias (vista para RRHH y administradores)
 if ($page === 'gestionar_asistencias') {
     Authz::requireRoles(['administrador', 'recursos_humanos']);
-    // Procesar búsqueda si se proporciona un término
-    $busqueda = $_GET['q'] ?? '';
-    // Obtener historial de asistencias según la búsqueda
-    if ($busqueda !== '') {
-        // Buscar por colaborador
-        $historial = Asistencia::buscarPorColaborador($busqueda);
-    } else {
-        // Obtener todas las asistencias
-        $historial = Asistencia::todas();
-    }
+    $historial = Asistencia::todas();
     render('asistencias/gestionar.php', [
         'historial' => $historial,
-        'busqueda' => $busqueda,
-    ]);
-    return;
-}
-
-// Editar asistencia existente
-if ($page === 'editar_asistencia') {
-    Authz::requireRoles(['administrador', 'recursos_humanos']);
-    // Obtener ID de la asistencia a editar
-    $id = $_GET['id'] ?? null;
-    if (!$id) {
-        Flash::error('Asistencia no encontrada');
-        redirect('gestionar_asistencias');
-    }
-    // Procesar formulario de edición
-    if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-        $ok = Asistencia::update(
-            $id,
-            $_POST['fecha'],
-            $_POST['hora_entrada'],
-            $_POST['hora_salida'] ?: null
-        );
-        // Mostrar mensaje según el resultado
-        if ($ok) {
-            Flash::success('Asistencia actualizada');
-        } else {
-            Flash::error('Error al actualizar asistencia');
-        }
-        // Redirigir de vuelta a la gestión de asistencias
-        redirect('gestionar_asistencias');
-    }
-    // Obtener datos de la asistencia para mostrar en el formulario
-    $asistencia = Asistencia::find($id);
-    // Renderizar vista de edición
-    render('asistencias/editar.php', [
-        'asistencia' => $asistencia
     ]);
     return;
 }
@@ -87,6 +97,8 @@ if ($page === 'ver_asistencias_personal') {
     $historial = $colaboradorId ? Asistencia::porColaborador($colaboradorId) : [];
     render('asistencias/personal.php', [
         'historial' => $historial,
+        'messages' => $messages,
+        'errors' => $errors,
     ]);
     return;
 }
@@ -127,5 +139,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 }
 
 Authz::requireRoles(['colaborador', 'administrador', 'recursos_humanos']);
-render('asistencias/registrar.php', []);
+render('asistencias/registrar.php', [
+    'messages' => $messages,
+    'errors' => $errors,
+]);
 

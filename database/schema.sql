@@ -1,4 +1,5 @@
-CREATE DATABASE IF NOT EXISTS capital_humano CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+CREATE DATABASE capital_humano;
+
 USE capital_humano;
 
 CREATE TABLE IF NOT EXISTS usuarios (
@@ -106,6 +107,15 @@ CREATE TABLE IF NOT EXISTS resueltos (
   resu_pdf_path VARCHAR(255),
   resu_fecha_creacion VARCHAR(30),
   resu_ultima_actualizacion VARCHAR(30)
+) ;
+
+CREATE TABLE IF NOT EXISTS auditoria (
+  aud_id VARCHAR(36) PRIMARY KEY DEFAULT (CAST(UUID_SHORT() AS CHAR)),
+  aud_actor_user_id VARCHAR(36),
+  aud_target_tipo VARCHAR(50),
+  aud_target_id VARCHAR(36),
+  aud_detalle VARCHAR(255),
+  aud_fecha VARCHAR(30)
 ) ;
 
 CREATE INDEX idx_usuarios_username ON usuarios (username);

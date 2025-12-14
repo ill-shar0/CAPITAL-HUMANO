@@ -8,6 +8,17 @@
     <?php endif; ?>
 </div>
 
+<?php if (!empty($messages)): ?>
+    <?php foreach ($messages as $msg): ?>
+        <div class="alert alert-success"><?= htmlspecialchars($msg) ?></div>
+    <?php endforeach; ?>
+<?php endif; ?>
+<?php if (!empty($errors)): ?>
+    <?php foreach ($errors as $err): ?>
+        <div class="alert alert-error"><?= htmlspecialchars($err) ?></div>
+    <?php endforeach; ?>
+<?php endif; ?>
+
 <?php if ($cargo): ?>
     <div class="grid two-cols">
         <div class="card">
@@ -39,7 +50,14 @@
                         <td><?= htmlspecialchars($col['colab_id']) ?></td>
                         <td><?= htmlspecialchars($col['primer_nombre'] . ' ' . $col['apellido_paterno']) ?></td>
                         <td><?= htmlspecialchars($col['periodo'] ?? '') ?></td>
-                        <td><button class="btn-link danger">Quitar cargo</button></td>
+                        <td>
+                            <form method="post">
+                                <input type="hidden" name="action" value="remove_assignment">
+                                <input type="hidden" name="cargo_id" value="<?= htmlspecialchars($cargo['cargo_id']) ?>">
+                                <input type="hidden" name="colab_id" value="<?= htmlspecialchars($col['colab_id']) ?>">
+                                <button class="btn-link danger" type="submit">Quitar cargo</button>
+                            </form>
+                        </td>
                     </tr>
                 <?php endforeach; ?>
             <?php else: ?>

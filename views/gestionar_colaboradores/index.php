@@ -1,41 +1,97 @@
 <?php ob_start(); ?>
 <div class="page-header">
     <h1>Gestionar colaboradores</h1>
-    <button class="btn">Crear colaborador</button>
     <p class="help-text">El estado por defecto es Activo. Puede generar usuario con rol colaborador.</p>
 </div>
 
-<table class="table">
-    <thead>
-        <tr>
-            <th>ID</th>
-            <th>Nombre</th>
-            <th>Sexo</th>
-            <th>Correo</th>
-            <th>Estado</th>
-            <th>Acciones</th>
-        </tr>
-    </thead>
-    <tbody>
-        <?php if (!empty($colaboradores)): ?>
-            <?php foreach ($colaboradores as $col): ?>
+<?php if (!empty($messages)): ?>
+    <?php foreach ($messages as $msg): ?>
+        <div class="alert alert-success"><?= htmlspecialchars($msg) ?></div>
+    <?php endforeach; ?>
+<?php endif; ?>
+<?php if (!empty($errors)): ?>
+    <?php foreach ($errors as $err): ?>
+        <div class="alert alert-error"><?= htmlspecialchars($err) ?></div>
+    <?php endforeach; ?>
+<?php endif; ?>
+
+<div class="grid two-cols">
+    <form class="form-card" method="post" enctype="multipart/form-data">
+        <input type="hidden" name="action" value="create_colaborador">
+        <h3>Crear colaborador</h3>
+        <label>Primer nombre</label>
+        <input type="text" name="primer_nombre" required>
+        <label>Segundo nombre</label>
+        <input type="text" name="segundo_nombre">
+        <label>Apellido paterno</label>
+        <input type="text" name="apellido_paterno" required>
+        <label>Apellido materno</label>
+        <input type="text" name="apellido_materno">
+        <label>Sexo</label>
+        <input type="text" name="sexo">
+        <label>Cédula</label>
+        <input type="text" name="cedula">
+        <label>Fecha de nacimiento</label>
+        <input type="date" name="fecha_nac">
+        <label>Correo</label>
+        <input type="email" name="correo">
+        <label>Teléfono</label>
+        <input type="text" name="telefono">
+        <label>Celular</label>
+        <input type="text" name="celular">
+        <label>Dirección</label>
+        <input type="text" name="direccion">
+        <label>Foto perfil</label>
+        <input type="file" name="foto_perfil" accept="image/png,image/jpeg">
+        <label>Sueldo</label>
+        <input type="text" name="car_sueldo">
+        <label>Cargo (texto)</label>
+        <input type="text" name="car_cargo">
+        <label>¿Crear usuario colaborador?</label>
+        <select name="crear_usuario">
+            <option value="no">No</option>
+            <option value="si">Sí</option>
+        </select>
+        <button class="btn" type="submit">Crear colaborador</button>
+    </form>
+
+    <div>
+        <table class="table">
+            <thead>
                 <tr>
-                    <td><?= htmlspecialchars($col['colab_id']) ?></td>
-                    <td><?= htmlspecialchars($col['primer_nombre'] . ' ' . $col['apellido_paterno']) ?></td>
-                    <td><?= htmlspecialchars($col['sexo']) ?></td>
-                    <td><?= htmlspecialchars($col['correo']) ?></td>
-                    <td><?= htmlspecialchars($col['estado_colaborador']) ?></td>
-                    <td class="actions">
-                        <a class="btn-link" href="<?= BASE_URL ?>/index.php?page=ver_colaborador&id=<?= urlencode($col['colab_id']) ?>">Ver</a>
-                        <button class="btn-link">Actualizar</button>
-                        <button class="btn-link danger">Eliminar (manda a historial)</button>
-                    </td>
+                    <th>ID</th>
+                    <th>Nombre</th>
+                    <th>Sexo</th>
+                    <th>Correo</th>
+                    <th>Estado</th>
+                    <th>Acciones</th>
                 </tr>
-            <?php endforeach; ?>
-        <?php else: ?>
-            <tr><td colspan="6">No hay colaboradores registrados.</td></tr>
-        <?php endif; ?>
-    </tbody>
-</table>
+            </thead>
+            <tbody>
+                <?php if (!empty($colaboradores)): ?>
+                    <?php foreach ($colaboradores as $col): ?>
+                        <tr>
+                            <td><?= htmlspecialchars($col['colab_id']) ?></td>
+                            <td><?= htmlspecialchars($col['primer_nombre'] . ' ' . $col['apellido_paterno']) ?></td>
+                            <td><?= htmlspecialchars($col['sexo']) ?></td>
+                            <td><?= htmlspecialchars($col['correo']) ?></td>
+                            <td><?= htmlspecialchars($col['estado_colaborador']) ?></td>
+                            <td class="actions">
+                                <a class="btn-link" href="<?= BASE_URL ?>/index.php?page=ver_colaborador&id=<?= urlencode($col['colab_id']) ?>">Ver</a>
+                                <form method="post" class="inline-form">
+                                    <input type="hidden" name="action" value="delete_colaborador">
+                                    <input type="hidden" name="colab_id" value="<?= htmlspecialchars($col['colab_id']) ?>">
+                                    <button class="btn-link danger" type="submit">Eliminar (historial)</button>
+                                </form>
+                            </td>
+                        </tr>
+                    <?php endforeach; ?>
+                <?php else: ?>
+                    <tr><td colspan="6">No hay colaboradores registrados.</td></tr>
+                <?php endif; ?>
+            </tbody>
+        </table>
+    </div>
+</div>
 <?php $content = ob_get_clean(); ?>
 
