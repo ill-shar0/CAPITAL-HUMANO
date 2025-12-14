@@ -36,32 +36,51 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <html lang="es">
 <head>
   <meta charset="UTF-8">
-  <title>Login - Capital Humano</title>
+  <title>Ingreso - Capital Humano</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <link rel="stylesheet" href="assets/css/main.css">
 </head>
-<body class="auth-body">
+<body class="login3-body">
 
-  <div class="auth-card">
-    <div class="auth-brand">Capital Humano</div>
-    <h1>Ingreso</h1>
+  <header class="public-topbar">
+    <div class="brand">Capital Humano</div>
+    <nav class="public-nav">
+      <a class="nav-link" href="home.php#beneficios">Beneficios</a>
+      <a class="nav-link" href="home.php#modulos">Módulos</a>
+      <a class="nav-link" href="home.php#seguridad">Seguridad</a>
+      <a class="btn primary" href="home.php">Inicio</a>
+    </nav>
+  </header>
 
-    <?php if ($error): ?>
-      <div class="alert alert-error"><?= htmlspecialchars($error) ?></div>
-    <?php endif; ?>
+  <main class="login3-main">
+    <section class="login3-panel">
 
-    <form method="post" class="auth-form" autocomplete="off">
-      <label>Usuario</label>
-      <input type="text" name="username" required placeholder="Tu usuario">
+      <h1 class="login3-title">Iniciar sesión</h1>
 
-      <label>Contraseña</label>
-      <input type="password" name="password" required placeholder="••••••••">
+      <?php if ($error): ?>
+        <div class="alert alert-error"><?= htmlspecialchars($error) ?></div>
+      <?php endif; ?>
 
-      <button class="btn auth-btn" type="submit">Ingresar</button>
-    </form>
+      <form method="post" class="login3-form" autocomplete="off">
+        <label>Usuario</label>
+        <input type="text" name="username" required placeholder="Tu usuario">
 
-    <p class="auth-hint">Si no puedes entrar, pide a RRHH que te regenere contraseña.</p>
-  </div>
+        <label>Contraseña</label>
+        <input type="password" name="password" required placeholder="••••••••">
+
+        <button class="btn blue" type="submit">Ingresar</button>
+      </form>
+
+      <p class="login3-foot">
+        Si no puedes ingresar, pide a RRHH que te regenere contraseña.
+      </p>
+
+    </section>
+  </main>
+
+  <footer class="login3-footer">
+    <span>© <?= date('Y') ?> Capital Humano</span>
+  </footer>
 
 </body>
 </html>
