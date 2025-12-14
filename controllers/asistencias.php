@@ -5,6 +5,8 @@ require_once BASE_PATH . '/models/Asistencia.php';
 require_once BASE_PATH . '/models/Colaborador.php';
 require_once BASE_PATH . '/helpers/flash.php';
 require_once BASE_PATH . '/helpers/redirect.php';
+require_once BASE_PATH . '/services/AuditService.php';
+require_once BASE_PATH . '/services/AuditService.php';
 
 $page = $_GET['page'] ?? 'registrar_asistencia';
 
@@ -48,6 +50,8 @@ if ($page === 'editar_asistencia') {
         // Mostrar mensaje según el resultado
         if ($ok) {
             Flash::success('Asistencia actualizada');
+            $actorId = (current_user()['user_id'] ?? '');
+            AuditService::log($actorId, 'asistencia', $id, 'Actualizó asistencia');
         } else {
             Flash::error('Error al actualizar asistencia');
         }
@@ -71,6 +75,8 @@ if ($page === 'eliminar_asistencia') {
     // Intentar eliminar la asistencia y mostrar mensaje según el resultado
     if ($id && Asistencia::delete($id)) {
         Flash::success('Asistencia eliminada');
+        $actorId = (current_user()['user_id'] ?? '');
+        AuditService::log($actorId, 'asistencia', $id, 'Eliminó asistencia');
     } else {
         Flash::error('No se pudo eliminar la asistencia');
     }
@@ -110,6 +116,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 Flash::error('No se pudo registrar la entrada.');
             } else {
                 Flash::success('Entrada registrada con correctamente.');
+                $actorId = $user['user_id'] ?? '';
+                AuditService::log($actorId, 'asistencia', 'entrada', "Entrada colab {$colaboradorId} {$fechaActual}");
             }
         }
         // Procesar la acción de salida
@@ -121,6 +129,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 Flash::error('No se pudo registrar la salida.');
             } else {
                 Flash::success('Salida registrada con correctamente.');
+                $actorId = $user['user_id'] ?? '';
+                AuditService::log($actorId, 'asistencia', 'salida', "Salida colab {$colaboradorId} {$fechaActual}");
             }
         }
     }
