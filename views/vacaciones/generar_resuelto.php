@@ -29,15 +29,15 @@
     <label>Colaborador</label>
     <input
       type="text"
-      value="<?= htmlspecialchars(($colaborador['primer_nombre'] ?? '') . ' ' . ($colaborador['apellido_paterno'] ?? '')) ?>"
+      value="<?= htmlspecialchars(($colaborador['colab_primer_nombre'] ?? '') . ' ' . ($colaborador['colab_apellido_paterno'] ?? '')) ?>"
       readonly
     >
 
     <label>Cédula</label>
-    <input type="text" value="<?= htmlspecialchars($colaborador['cedula'] ?? '') ?>" readonly>
+    <input type="text" value="<?= htmlspecialchars($colaborador['colab_cedula'] ?? '') ?>" readonly>
 
     <label>Cargo</label>
-    <input type="text" value="<?= htmlspecialchars($colaborador['car_cargo'] ?? '') ?>" readonly>
+    <input type="text" value="<?= htmlspecialchars($colaborador['colab_car_cargo'] ?? '') ?>" readonly>
 
     <label>Días de vacaciones</label>
     <select name="dias_vacaciones" required>

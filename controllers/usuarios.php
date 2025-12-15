@@ -5,7 +5,7 @@ require_once BASE_PATH . '/models/User.php';
 require_once BASE_PATH . '/services/PasswordService.php';
 require_once BASE_PATH . '/services/AuditService.php';
 
-Authz::requireRoles(['administrador', 'recursos_humanos']);
+Authz::requireRoles(['administrador']);
 
 $page = $_GET['page'] ?? 'gestionar_usuarios';
 $messages = [];

@@ -7,143 +7,39 @@ require_once BASE_PATH . '/models/Resuelto.php';
 require_once BASE_PATH . '/services/AuditService.php';
 require_once BASE_PATH . '/services/PdfService.php';
 
-Authz::requireRoles(['administrador', 'recursos_humanos']);
+// Gestionar vacaciones
+if ($page === 'gestionar_vacaciones') {
+    Authz::requireRoles(['administrador', 'recursos_humanos']);
 
-$page = $_GET['page'] ?? 'gestionar_vacaciones';
-$messages = [];
-$errors = [];
+    $colaboradores = Vacaciones::colaboradoresConVacaciones();
 
-if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $action = $_POST['action'] ?? '';
-    $currentUser = current_user();
-    $actorId = $currentUser['user_id'] ?? '';
-
-    if ($action === 'create_vacacion') {
-        $colabId = $_POST['colab_id'] ?? '';
-        $trab = $_POST['dias_trabajados'] ?? '0';
-        $validos = $_POST['dias_validos'] ?? '0';
-        $estado = $_POST['estado_vacaciones'] ?? 'No válido';
-        if ($colabId) {
-            $newId = Vacacion::create($colabId, $trab, $validos, $estado);
-            if ($newId) {
-                $messages[] = 'Vacación creada.';
-                AuditService::log($actorId, 'vacacion', $newId, "Creó vacación colab {$colabId}");
-            } else {
-                $errors[] = 'No se pudo crear la vacación.';
-            }
-        } else {
-            $errors[] = 'Falta colab_id.';
-        }
-    }
-
-    if ($action === 'update_vacacion') {
-        $vacId = $_POST['vac_id'] ?? '';
-        $trab = $_POST['dias_trabajados'] ?? '0';
-        $validos = $_POST['dias_validos'] ?? '0';
-        $estado = $_POST['estado_vacaciones'] ?? 'No válido';
-        $tomados = $_POST['dias_tomados'] ?? '0';
-        if ($vacId) {
-            if (Vacacion::updateVacacion($vacId, $trab, $validos, $estado, $tomados)) {
-                $messages[] = 'Vacación actualizada.';
-                AuditService::log($actorId, 'vacacion', $vacId, 'Actualizó vacación');
-            } else {
-                $errors[] = 'No se pudo actualizar la vacación.';
-            }
-        } else {
-            $errors[] = 'Falta vac_id.';
-        }
-    }
-
-    if ($action === 'delete_vacacion') {
-        $vacId = $_POST['vac_id'] ?? '';
-        if ($vacId) {
-            if (Vacacion::deleteVacacion($vacId)) {
-                $messages[] = 'Vacación eliminada.';
-                AuditService::log($actorId, 'vacacion', $vacId, 'Eliminó vacación');
-            } else {
-                $errors[] = 'No se pudo eliminar la vacación.';
-            }
-        } else {
-            $errors[] = 'Falta vac_id.';
-        }
-    }
-
-    if ($action === 'create_resuelto') {
-        $colabId = $_POST['colab_id'] ?? '';
-        $dias = $_POST['dias_vacaciones'] ?? '';
-        $inicio = $_POST['periodo_inicio'] ?? '';
-        $fin = $_POST['periodo_fin'] ?? '';
-        if ($colabId && $dias && $inicio && $fin) {
-            $vac = Vacacion::findByColabId($colabId);
-            if (!$vac) {
-                $errors[] = 'No existen datos de vacaciones para este colaborador.';
-            } else {
-                $disponibles = max(0, (int)$vac['vac_dias_vacaciones_validos'] - (int)$vac['vac_dias_vacaciones_tomados']);
-                $diasNum = (int)$dias;
-                if ($diasNum < 7) {
-                    $errors[] = 'Las vacaciones solicitadas deben ser mínimo 7 días.';
-                } elseif ($diasNum > $disponibles) {
-                    $errors[] = 'No hay días suficientes. Disponibles: ' . $disponibles;
-                } else {
-                    $colab = Colaborador::find($colabId);
-                    $pdfPath = PdfService::generateResuelto([
-                        'colab_id' => $colabId,
-                        'nombre' => $colab ? ($colab['primer_nombre'] . ' ' . $colab['apellido_paterno']) : '',
-                        'cedula' => $colab['cedula'] ?? '',
-                        'cargo' => $colab['car_cargo'] ?? '',
-                        'dias' => $diasNum,
-                        'inicio' => $inicio,
-                        'fin' => $fin,
-                    ]);
-
-                    $newId = Resuelto::create($colabId, $dias, $inicio, $fin, $pdfPath);
-                    if ($newId) {
-                        $tomados = (int)$vac['vac_dias_vacaciones_tomados'] + $diasNum;
-                        $validosRestantes = max(0, (int)$vac['vac_dias_vacaciones_validos'] - $diasNum);
-                        Vacacion::updateVacacion($vac['vac_id'], $vac['vac_dias_trabajados'], $validosRestantes, $vac['vac_estado_vacaciones'], (string)$tomados);
-
-                        $messages[] = 'Resuelto creado y PDF generado.';
-                        AuditService::log($actorId, 'resuelto', $newId, "Creó resuelto colab {$colabId}");
-                    } else {
-                        $errors[] = 'No se pudo crear el resuelto.';
-                    }
-                }
-            }
-        } else {
-            $errors[] = 'Faltan datos para el resuelto.';
-        }
-    }
-
-    if ($action === 'delete_resuelto') {
-        $resId = $_POST['resuelto_id'] ?? '';
-        if ($resId) {
-            if (Resuelto::deleteResuelto($resId)) {
-                $messages[] = 'Resuelto eliminado.';
-                AuditService::log($actorId, 'resuelto', $resId, 'Eliminó resuelto');
-            } else {
-                $errors[] = 'No se pudo eliminar el resuelto.';
-            }
-        } else {
-            $errors[] = 'Falta resuelto_id.';
-        }
-    }
-}
-
-if ($page === 'generar_resuelto') {
-    $colaboradorId = $_GET['id'] ?? null;
-    $colaborador = $colaboradorId ? Colaborador::find($colaboradorId) : null;
-    render('vacaciones/resuelto.php', [
-        'colaborador' => $colaborador,
-        'messages' => $messages,
-        'errors' => $errors,
+    render('vacaciones/gestionar.php', [
+        'colaboradores' => $colaboradores
     ]);
     return;
 }
 
-$vacaciones = Vacacion::resumen();
-render('vacaciones/index.php', [
-    'vacaciones' => $vacaciones,
-    'messages' => $messages,
-    'errors' => $errors,
-]);
+// Generar resuelto
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    $data = [
+        'colab_id' => $_POST['colab_id'],
+        'nombre'   => $colaborador['colab_primer_nombre'] . ' ' . $colaborador['colab_apellido_paterno'],
+        'cedula'   => $colaborador['colab_cedula'],
+        'cargo'    => $colaborador['colab_car_cargo'],
+        'dias'     => $_POST['dias_vacaciones'],
+        'inicio'   => $_POST['periodo_inicio'],
+        'fin'      => $_POST['periodo_fin'],
+    ];
+
+    $pdfPath = PdfService::generateResuelto($data);
+
+    Vacaciones::guardarResuelto(
+        $data['colab_id'],
+        (int)$data['dias'],
+        $pdfPath
+    );
+
+    Flash::success('Resuelto generado correctamente');
+    redirect('gestionar_vacaciones');
+}
 

@@ -4,9 +4,15 @@ if (session_status() === PHP_SESSION_NONE) {
 }
 
 define('BASE_PATH', __DIR__ . '/..');
+<<<<<<< HEAD
 $baseUrl = rtrim(str_replace('\\', '/', dirname($_SERVER['SCRIPT_NAME'])), '/');
 define('BASE_URL', $baseUrl);
 
+=======
+
+$baseUrl = rtrim(str_replace('\\', '/', dirname($_SERVER['SCRIPT_NAME'])), '/');
+define('BASE_URL', $baseUrl);
+>>>>>>> 1f92c73fb97e286b08790676ba8622dca2dc6543
 
 date_default_timezone_set('UTC');
 
