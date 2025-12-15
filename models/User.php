@@ -70,27 +70,32 @@ class User
         }
     }
 
-    public static function create(string $username, string $passwordHash, string $rol, string $estado = '1', ?string $colabId = null): ?string
-    {
-        try {
-            $db = get_db();
-            $sql = 'INSERT INTO usuarios (username, usu_password_hash, usu_rol, usu_estado_usuario, usu_colab_id, usu_fecha_creacion, usu_ultima_actualizacion)
-                    VALUES (:username, :hash, :rol, :estado, :colab, :fecha, :fecha)';
-            $stmt = $db->prepare($sql);
-            $now = date('Y-m-d H:i:s');
-            $stmt->execute([
-                'username' => $username,
-                'hash' => $passwordHash,
-                'rol' => $rol,
-                'estado' => $estado,
-                'colab' => $colabId,
-                'fecha' => $now,
-            ]);
-            return $db->lastInsertId();
-        } catch (Throwable $e) {
-            return null;
-        }
+    public static function create($username, $passwordHash, $rol, $estado, $colabId = null): bool
+{
+    try {
+        $db = get_db();
+
+        $sql = 'INSERT INTO usuarios (username, usu_password_hash, usu_rol, usu_estado_usuario, usu_colab_id, usu_fecha_creacion, usu_ultima_actualizacion)
+                VALUES (:username, :hash, :rol, :estado, :colab, :fecha, :fecha)';
+
+        $stmt = $db->prepare($sql);
+        $ok = $stmt->execute([
+            'username' => $username,
+            'hash'     => $passwordHash,
+            'rol'      => $rol,
+            'estado'   => $estado,
+            'colab'    => $colabId,
+            'fecha'    => date('Y-m-d H:i:s'),
+        ]);
+
+        return $ok && $stmt->rowCount() > 0;
+
+    } catch (PDOException $e) {
+        // ✅ Duplicado (MySQL): 1062
+        if ((int)($e->errorInfo[1] ?? 0) === 1062) return false;
+        return false;
     }
+}
 
     public static function updateRoleState(string $userId, string $rol, string $estado): bool
     {
@@ -151,4 +156,3 @@ class User
         }
     }
 }
-
