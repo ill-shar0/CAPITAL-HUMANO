@@ -155,4 +155,23 @@ class User
             return false;
         }
     }
+
+    /**
+     * Devuelve el colab_id asociado a un user_id, o null si no existe.
+     */
+    public static function colabIdByUserId(string $userId): ?string
+    {
+        try {
+            $db = get_db();
+            $stmt = $db->prepare('SELECT usu_colab_id FROM usuarios WHERE user_id = :id LIMIT 1');
+            $stmt->execute(['id' => $userId]);
+            $row = $stmt->fetch();
+            if (!$row) {
+                return null;
+            }
+            return $row['usu_colab_id'] ?? null;
+        } catch (Throwable $e) {
+            return null;
+        }
+    }
 }
