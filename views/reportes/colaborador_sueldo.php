@@ -1,5 +1,4 @@
 <?php
-// Seguridad defensiva
 $filtros = is_array($filtros ?? null) ? $filtros : [];
 $colaboradores = is_array($colaboradores ?? null) ? $colaboradores : [];
 ?>
