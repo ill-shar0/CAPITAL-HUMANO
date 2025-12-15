@@ -5,20 +5,32 @@ class Cargo
 {
     public static function create(string $nombre, string $departamento, string $sueldo, string $ocupacion): ?string
     {
+        // UUID_SHORT no es recuperable con lastInsertId() en PDO; generamos el ID antes.
         try {
             $db = get_db();
-            $sql = 'INSERT INTO cargos (carg_nombre_cargo, carg_departamento_cargo, carg_sueldo_cargo, carg_ocupacion, carg_fecha_creacion, carg_ultima_actualizacion)
-                    VALUES (:nombre, :depto, :sueldo, :ocupacion, :fecha, :fecha)';
+            $newId = (string)hexdec(uniqid()); // similar a UUID_SHORT()
+            $sql = 'INSERT INTO cargos (
+                        cargo_id,
+                        carg_nombre_cargo,
+                        carg_departamento_cargo,
+                        carg_sueldo_cargo,
+                        carg_ocupacion,
+                        carg_fecha_creacion,
+                        carg_ultima_actualizacion
+                    ) VALUES (
+                        :id, :nombre, :depto, :sueldo, :ocupacion, :fecha, :fecha
+                    )';
             $stmt = $db->prepare($sql);
             $now = date('Y-m-d H:i:s');
             $stmt->execute([
+                'id' => $newId,
                 'nombre' => $nombre,
                 'depto' => $departamento,
                 'sueldo' => $sueldo,
                 'ocupacion' => $ocupacion,
                 'fecha' => $now,
             ]);
-            return $db->lastInsertId();
+            return $newId;
         } catch (Throwable $e) {
             return null;
         }

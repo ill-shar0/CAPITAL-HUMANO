@@ -25,7 +25,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $errors[] = 'El nombre del cargo es obligatorio.';
         } else {
             $newId = Cargo::create($nombre, $departamento, $sueldo, $ocupacion);
-            if ($newId) {
+            if ($newId !== null) {
                 $messages[] = 'Cargo creado correctamente.';
                 AuditService::log($actorId, 'cargo', $newId, "Creó cargo {$nombre}");
             } else {
