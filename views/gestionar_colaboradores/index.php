@@ -75,10 +75,10 @@
                 <?php foreach ($colaboradores as $col): ?>
                     <tr>
                         <td><?= htmlspecialchars($col['colab_id']) ?></td>
-                        <td><?= htmlspecialchars($col['primer_nombre'] . ' ' . $col['apellido_paterno']) ?></td>
-                        <td><?= htmlspecialchars($col['sexo']) ?></td>
-                        <td><?= htmlspecialchars($col['correo']) ?></td>
-                        <td><?= htmlspecialchars($col['estado_colaborador']) ?></td>
+                        <td><?= htmlspecialchars(($col['primer_nombre'] ?? '') . ' ' . ($col['apellido_paterno'] ?? '')) ?></td>
+                        <td><?= htmlspecialchars($col['sexo'] ?? '') ?></td>
+                        <td><?= htmlspecialchars($col['correo'] ?? '') ?></td>
+                        <td><?= htmlspecialchars($col['estado_colaborador'] ?? '') ?></td>
                         <td class="actions">
                             <a class="btn-link" href="<?= BASE_URL ?>/index.php?page=ver_colaborador&id=<?= urlencode($col['colab_id']) ?>">Ver</a>
                             <form method="post" class="inline-form">
