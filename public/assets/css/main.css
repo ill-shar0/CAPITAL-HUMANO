@@ -843,3 +843,67 @@ body {
     }
 }
 
+/* =========================
+   GESTIONAR USUARIOS (BONITO + VERTICAL)
+========================= */
+.users-page{
+  display:flex;
+  flex-direction:column;
+  gap:14px;
+}
+
+/* que el form no se quede pequeño */
+.users-page .form-card{
+  max-width: 720px;
+}
+
+/* que la tabla se vea como tarjeta y no se rompa */
+.users-page .table{
+  width:100%;
+}
+
+.users-page > div{
+  background:#fff;
+  border-radius:10px;
+  box-shadow:0 1px 3px rgba(0,0,0,.08);
+  padding:12px;
+}
+
+/* mejora visual del header */
+.page-header{
+  background: #fff;
+  padding: 14px 16px;
+  border-radius: 12px;
+  box-shadow: 0 1px 3px rgba(0,0,0,.08);
+} 
+
+.page-header h1{
+  font-size:28px;
+}
+
+/* acciones más alineadas */
+.actions{
+  justify-content:flex-end;
+  flex-wrap:wrap;
+}
+
+/* selects dentro de la tabla más cómodos */
+.table select{
+  padding:6px 8px;
+  border-radius:8px;
+  border:1px solid #cbd5e1;
+}
+/* FIX: no rompas el <td> de la tabla con flex */
+.table td.actions{
+  display: table-cell !important;   /* vuelve a ser celda */
+  vertical-align: middle;
+  white-space: nowrap;
+}
+
+/* Si quieres que los botones estén uno al lado del otro dentro de ese td */
+.table td.actions .inline-form{
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
