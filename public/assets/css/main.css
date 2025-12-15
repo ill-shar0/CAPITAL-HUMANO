@@ -788,67 +788,58 @@ body {
     flex-direction: column;
   }
 }
-/* =========================
-   GESTIONAR USUARIOS (BONITO + VERTICAL)
-========================= */
-.users-page{
-  display:flex;
-  flex-direction:column;
-  gap:14px;
+
+/* ===============================
+   ESTADÍSTICAS
+================================ */
+
+.stats-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+    margin-bottom: 24px;
 }
 
-/* que el form no se quede pequeño */
-.users-page .form-card{
-  max-width: 720px;
+/* Tarjeta */
+.stats-card {
+    background: #ffffff;
+    border-radius: 10px;
+    padding: 16px;
+    box-shadow: 0 3px 10px rgba(0,0,0,0.08);
+    height: 360px;               /* 🔑 controla el tamaño */
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
 }
 
-/* que la tabla se vea como tarjeta y no se rompa */
-.users-page .table{
-  width:100%;
+.stats-card h3 {
+    font-size: 15px;
+    font-weight: 600;
+    text-align: center;
+    margin-bottom: 10px;
+    color: #1f2937;
 }
 
-.users-page > div{
-  background:#fff;
-  border-radius:10px;
-  box-shadow:0 1px 3px rgba(0,0,0,.08);
-  padding:12px;
+/* Canvas controlado */
+.stats-card canvas {
+    max-height: 240px !important;
+    width: 100% !important;
 }
 
-/* mejora visual del header */
-.page-header{
-  background: #fff;
-  padding: 14px 16px;
-  border-radius: 12px;
-  box-shadow: 0 1px 3px rgba(0,0,0,.08);
-} 
-
-.page-header h1{
-  font-size:28px;
+/* Card grande (edad) */
+.stats-card.full {
+    grid-column: span 2;
+    height: 320px;
 }
 
-/* acciones más alineadas */
-.actions{
-  justify-content:flex-end;
-  flex-wrap:wrap;
-}
+/* Responsive */
+@media (max-width: 992px) {
+    .stats-grid {
+        grid-template-columns: 1fr;
+    }
 
-/* selects dentro de la tabla más cómodos */
-.table select{
-  padding:6px 8px;
-  border-radius:8px;
-  border:1px solid #cbd5e1;
-}
-/* FIX: no rompas el <td> de la tabla con flex */
-.table td.actions{
-  display: table-cell !important;   /* vuelve a ser celda */
-  vertical-align: middle;
-  white-space: nowrap;
-}
-
-/* Si quieres que los botones estén uno al lado del otro dentro de ese td */
-.table td.actions .inline-form{
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
+    .stats-card.full {
+        grid-column: span 1;
+    }
 }
 
