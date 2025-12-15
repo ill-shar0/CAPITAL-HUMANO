@@ -62,6 +62,25 @@
         </div>
     </div>
 
+    <!-- Cambio rápido de estado (solo estado) -->
+    <div class="card" style="margin-top:16px;">
+        <h3>Cambiar estado</h3>
+        <form method="post" action="<?= BASE_URL ?>/index.php?page=gestionar_colaboradores" class="inline-form" style="display:flex;align-items:center;gap:12px;flex-wrap:wrap;">
+            <input type="hidden" name="action" value="update_estado_colaborador">
+            <input type="hidden" name="colab_id" value="<?= htmlspecialchars($colaborador['colab_id']) ?>">
+            <label for="estado_colaborador" style="margin:0;">Estado</label>
+            <select name="estado_colaborador" id="estado_colaborador">
+                <?php
+                $estados = ['Activo', 'Vacaciones', 'Licencia', 'Incapacitado'];
+                foreach ($estados as $estado):
+                ?>
+                    <option value="<?= $estado ?>" <?= ($colaborador['estado_colaborador'] ?? '') === $estado ? 'selected' : '' ?>><?= $estado ?></option>
+                <?php endforeach; ?>
+            </select>
+            <button class="btn" type="submit">Guardar</button>
+        </form>
+    </div>
+
     <!-- Resumen de sueldo y cargo activo -->
     <div class="card">
         <h3>Sueldo y cargo activo</h3>

@@ -13,6 +13,7 @@ Authz::requireRoles(['administrador', 'recursos_humanos']); // solo admin/RRHH
 $page = $_GET['page'] ?? 'gestionar_colaboradores'; // página actual
 $messages = []; // feedback éxito
 $errors = [];   // feedback error
+$allowedStates = ['Activo', 'Vacaciones', 'Licencia', 'Incapacitado']; // estados permitidos
 
 function handle_photo_upload(): string // sube foto y retorna ruta relativa
 {
@@ -42,8 +43,30 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $_SESSION['flash']['messages'] = [];
     $_SESSION['flash']['errors'] = [];
 
+    if ($action === 'update_estado_colaborador') { // cambiar solo estado
+        $colabId = $_POST['colab_id'] ?? '';
+        $estado = trim($_POST['estado_colaborador'] ?? 'Activo');
+        if (!$colabId) {
+            $errors[] = 'Falta colab_id.';
+        } elseif (!in_array($estado, $allowedStates, true)) {
+            $errors[] = 'Estado inválido.';
+        } else {
+            if (Colaborador::updateEstado($colabId, $estado)) {
+                $messages[] = 'Estado actualizado.';
+                AuditService::log($actorId, 'colaborador', $colabId, "Actualizó estado a {$estado}");
+            } else {
+                $errors[] = 'No se pudo actualizar el estado.';
+            }
+        }
+    }
+
     if ($action === 'create_colaborador') { // crear colaborador
         $foto = handle_photo_upload(); // procesa foto
+        $estado = trim($_POST['estado_colaborador'] ?? 'Activo');
+        if (!in_array($estado, $allowedStates, true)) {
+            $errors[] = 'Estado inválido.';
+            $estado = 'Activo';
+        }
         $data = [
             'primer_nombre' => trim($_POST['primer_nombre'] ?? ''),
             'segundo_nombre' => trim($_POST['segundo_nombre'] ?? ''),
@@ -59,7 +82,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             'foto_perfil' => $foto,
             'car_sueldo' => trim($_POST['car_sueldo'] ?? ''),
             'car_cargo' => trim($_POST['car_cargo'] ?? ''),
-            'estado_colaborador' => 'Activo',
+            'estado_colaborador' => $estado,
         ];
 
         if ($data['primer_nombre'] === '' || $data['apellido_paterno'] === '') { // validación mínima
@@ -93,6 +116,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $colabId = $_POST['colab_id'] ?? '';
         if ($colabId) {
             $foto = handle_photo_upload();
+            $estado = trim($_POST['estado_colaborador'] ?? 'Activo');
+            if (!in_array($estado, $allowedStates, true)) {
+                $errors[] = 'Estado inválido.';
+                $estado = 'Activo';
+            }
             $data = [
                 'primer_nombre' => trim($_POST['primer_nombre'] ?? ''),
                 'segundo_nombre' => trim($_POST['segundo_nombre'] ?? ''),
@@ -108,7 +136,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 'foto_perfil' => $foto ?: (trim($_POST['foto_actual'] ?? '')),
                 'car_sueldo' => trim($_POST['car_sueldo'] ?? ''),
                 'car_cargo' => trim($_POST['car_cargo'] ?? ''),
-                'estado_colaborador' => trim($_POST['estado_colaborador'] ?? 'Activo'),
+                'estado_colaborador' => $estado,
             ];
             if (Colaborador::updateColab($colabId, $data)) {
                 $messages[] = 'Colaborador actualizado.';

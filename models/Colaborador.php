@@ -99,6 +99,25 @@ class Colaborador
         }
     }
 
+    // Actualiza solo el estado del colaborador
+    public static function updateEstado(string $id, string $estado): bool
+    {
+        try {
+            $db = get_db();
+            $stmt = $db->prepare('UPDATE colaboradores
+                SET colab_estado_colaborador = :estado,
+                    colab_ultima_actualizacion = :fecha
+                WHERE colab_id = :id');
+            return $stmt->execute([
+                'estado' => $estado,
+                'fecha' => date('Y-m-d H:i:s'),
+                'id' => $id,
+            ]);
+        } catch (Throwable $e) {
+            return false;
+        }
+    }
+
     // Mueve colaborador a historial y desactiva asignaciones
     public static function moveToHistorial(string $colabId): bool
     {
