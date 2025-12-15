@@ -1,3 +1,4 @@
+<!-- Vista: asignar cargo a colaborador -->
 <div class="page-header">
     <h1>Asignar cargo</h1>
     <p class="help-text">Seleccione cargo, colaborador y periodo (Permanente, Eventual o Interino).</p>

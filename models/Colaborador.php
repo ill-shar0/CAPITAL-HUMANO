@@ -3,6 +3,7 @@ require_once BASE_PATH . '/config/db.php';
 
 class Colaborador
 {
+    // Crea colaborador y devuelve ID
     public static function create(array $data): ?string
     {
         try {
@@ -50,6 +51,7 @@ class Colaborador
         }
     }
 
+    // Actualiza datos del colaborador
     public static function updateColab(string $id, array $data): bool
     {
         try {
@@ -97,6 +99,7 @@ class Colaborador
         }
     }
 
+    // Mueve colaborador a historial y desactiva asignaciones
     public static function moveToHistorial(string $colabId): bool
     {
         try {
@@ -169,6 +172,7 @@ class Colaborador
             return false;
         }
     }
+    // Lista todos los colaboradores
     public static function all(): array
     {
         try {
@@ -195,6 +199,7 @@ class Colaborador
         }
     }
 
+    // Busca colaborador por ID
     public static function find(string $id): ?array
     {
         try {
@@ -229,6 +234,7 @@ class Colaborador
         }
     }
 
+    // Busca colaborador por cédula
     public static function findByCedula(string $cedula): ?array
     {
         try {
@@ -251,6 +257,7 @@ class Colaborador
         }
     }
 
+    // Colaboradores con cargo activo dado
     public static function porCargo(string $cargoId): array
     {
         try {
@@ -271,6 +278,7 @@ class Colaborador
         }
     }
 
+    // Filtro/paginación para reportes
     public static function filtrarParaReporte(array $filtros, int $limit, int $offset): array
 {
     try {
@@ -337,6 +345,7 @@ class Colaborador
     }
 }
 
+// Cuenta total para reportes
 public static function contarParaReporte(array $filtros): int
 {
     try {
@@ -390,6 +399,7 @@ public static function contarParaReporte(array $filtros): int
     }
 }
 
+    // Estadísticas agregadas (sexo/dirección/edad)
     public static function estadisticas(): array
     {
         try {

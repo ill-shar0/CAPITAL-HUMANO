@@ -1,39 +1,42 @@
 <?php
-require_once __DIR__ . '/../config/app.php';
-require_once __DIR__ . '/../config/db.php';
-require_once __DIR__ . '/../middleware/auth.php';
-require_once __DIR__ . '/../models/User.php';
-require_once __DIR__ . '/../services/PasswordService.php';
+require_once __DIR__ . '/../config/app.php'; // bootstrap (BASE_URL, render)
+require_once __DIR__ . '/../config/db.php'; // conexión PDO
+require_once __DIR__ . '/../middleware/auth.php'; // helpers auth
+require_once __DIR__ . '/../models/User.php'; // modelo usuario
+require_once __DIR__ . '/../services/PasswordService.php'; // hash/verificación
 
+// Si ya está logueado, redirige al panel
 if (current_user()) {
   header('Location: index.php');
   exit;
 }
 
-$error = '';
+$error = ''; // mensaje de error
 
+// Procesar login
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
   $username = trim($_POST['username'] ?? '');
   $password = trim($_POST['password'] ?? '');
 
-  $user = User::findByUsername($username);
+  $user = User::findByUsername($username); // busca credenciales
 
   if (
     $user &&
-    ($user['estado_usuario'] ?? '0') === '1' &&
-    PasswordService::verify($password, $user['password_hash'])
+    ($user['estado_usuario'] ?? '0') === '1' && // debe estar activo
+    PasswordService::verify($password, $user['password_hash']) // valida password
   ) {
+    // set sesión mínima
     $_SESSION['user'] = [
       'user_id' => $user['user_id'],
       'username' => $user['username'],
       'rol' => $user['rol'],
       'colab_id' => $user['colab_id'] ?? null,
     ];
-    header('Location: index.php');
+    header('Location: index.php'); // ir a dashboard
     exit;
   }
 
-  $error = 'Credenciales inválidas o usuario inactivo.';
+  $error = 'Credenciales inválidas o usuario inactivo.'; // feedback
 }
 ?>
 <!DOCTYPE html>

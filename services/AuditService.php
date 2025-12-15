@@ -1,8 +1,9 @@
 <?php
-require_once __DIR__ . '/../config/db.php';
+require_once __DIR__ . '/../config/db.php'; // acceso a PDO
 
 class AuditService
 {
+    // Registra acción en tabla auditoria
     public static function log(string $actorUserId, string $targetTipo, string $targetId, string $detalle): void
     {
         try {

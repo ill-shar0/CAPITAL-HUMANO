@@ -3,6 +3,7 @@ require_once BASE_PATH . '/config/db.php';
 
 class Resuelto
 {
+    // Inserta un resuelto y retorna su ID
     public static function create(string $colabId, string $diasVacaciones, string $inicio, string $fin, string $pdfPath = ''): ?string
     {
         try {
@@ -25,6 +26,7 @@ class Resuelto
         }
     }
 
+    // Elimina un resuelto por ID
     public static function deleteResuelto(string $resueltoId): bool
     {
         try {

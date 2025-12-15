@@ -3,6 +3,7 @@ require_once BASE_PATH . '/config/db.php';
 
 class User
 {
+    // Busca usuario por colab_id
     public static function findByColabId(string $colabId): ?array
     {
         try {
@@ -27,10 +28,7 @@ class User
         }
     }
 
-    /**
-     * Genera username único: primera letra + "." + apellido (lowercase).
-     * Si existe, agrega sufijo numérico incremental.
-     */
+    // Genera username único inicial.apellido + sufijo numérico si existe
     public static function generateUsername(string $primerNombre, string $apellidoPaterno): string
     {
         $base = strtolower(substr(trim($primerNombre), 0, 1)) . '.' . strtolower(str_replace(' ', '', trim($apellidoPaterno)));
@@ -67,6 +65,7 @@ class User
             return $base;
         }
     }
+    // Lista todos los usuarios
     public static function all(): array
     {
         try {
@@ -86,6 +85,7 @@ class User
         }
     }
 
+    // Busca usuario por ID
     public static function findById(string $userId): ?array
     {
         try {
@@ -110,6 +110,7 @@ class User
         }
     }
 
+    // Busca usuario por username
     public static function findByUsername(string $username): ?array
     {
         try {
@@ -134,6 +135,7 @@ class User
         }
     }
 
+    // Crea usuario (con rol/estado y colab opcional)
     public static function create($username, $passwordHash, $rol, $estado, $colabId = null): bool
 {
     try {
@@ -161,6 +163,7 @@ class User
     }
 }
 
+    // Actualiza rol y estado
     public static function updateRoleState(string $userId, string $rol, string $estado): bool
     {
         try {
@@ -182,6 +185,7 @@ class User
         }
     }
 
+    // Activa/desactiva usuario
     public static function toggleEstado(string $userId, string $nuevoEstado): bool
     {
         try {
@@ -201,6 +205,7 @@ class User
         }
     }
 
+    // Cambia contraseña
     public static function setPassword(string $userId, string $hash): bool
     {
         try {
@@ -220,9 +225,7 @@ class User
         }
     }
 
-    /**
-     * Devuelve el colab_id asociado a un user_id, o null si no existe.
-     */
+    // Devuelve colab_id asociado a user_id
     public static function colabIdByUserId(string $userId): ?string
     {
         try {

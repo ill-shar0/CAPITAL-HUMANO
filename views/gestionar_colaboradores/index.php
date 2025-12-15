@@ -1,3 +1,4 @@
+<!-- Vista: alta y listado de colaboradores -->
 <div class="page-header">
     <h1>Gestionar colaboradores</h1>
     <p class="help-text">El estado por defecto es Activo. Puede generar usuario con rol colaborador.</p>

@@ -1,20 +1,20 @@
 <?php
-require_once BASE_PATH . '/middleware/auth.php';
-require_once BASE_PATH . '/services/Authz.php';
-require_once BASE_PATH . '/models/Colaborador.php';
-require_once BASE_PATH . '/models/Cargo.php';
-require_once BASE_PATH . '/models/User.php';
-require_once BASE_PATH . '/services/PasswordService.php';
-require_once BASE_PATH . '/services/AuditService.php';
-require_once BASE_PATH . '/helpers/redirect.php';
+require_once BASE_PATH . '/middleware/auth.php'; // sesión/seguridad
+require_once BASE_PATH . '/services/Authz.php'; // roles
+require_once BASE_PATH . '/models/Colaborador.php'; // modelo colaborador
+require_once BASE_PATH . '/models/Cargo.php'; // modelo cargo
+require_once BASE_PATH . '/models/User.php'; // modelo usuario
+require_once BASE_PATH . '/services/PasswordService.php'; // passwords
+require_once BASE_PATH . '/services/AuditService.php'; // auditoría
+require_once BASE_PATH . '/helpers/redirect.php'; // helper redirect
 
-Authz::requireRoles(['administrador', 'recursos_humanos']);
+Authz::requireRoles(['administrador', 'recursos_humanos']); // solo admin/RRHH
 
-$page = $_GET['page'] ?? 'gestionar_colaboradores';
-$messages = [];
-$errors = [];
+$page = $_GET['page'] ?? 'gestionar_colaboradores'; // página actual
+$messages = []; // feedback éxito
+$errors = [];   // feedback error
 
-function handle_photo_upload(): string
+function handle_photo_upload(): string // sube foto y retorna ruta relativa
 {
     if (!isset($_FILES['foto_perfil']) || $_FILES['foto_perfil']['error'] !== UPLOAD_ERR_OK) {
         return '';
@@ -34,16 +34,16 @@ function handle_photo_upload(): string
 }
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $action = $_POST['action'] ?? '';
-    $currentUser = current_user();
-    $actorId = $currentUser['user_id'] ?? '';
+    $action = $_POST['action'] ?? ''; // acción enviada
+    $currentUser = current_user(); // usuario sesión
+    $actorId = $currentUser['user_id'] ?? ''; // para auditoría
 
     // Limpia flash previo
     $_SESSION['flash']['messages'] = [];
     $_SESSION['flash']['errors'] = [];
 
-    if ($action === 'create_colaborador') {
-        $foto = handle_photo_upload();
+    if ($action === 'create_colaborador') { // crear colaborador
+        $foto = handle_photo_upload(); // procesa foto
         $data = [
             'primer_nombre' => trim($_POST['primer_nombre'] ?? ''),
             'segundo_nombre' => trim($_POST['segundo_nombre'] ?? ''),
@@ -62,7 +62,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             'estado_colaborador' => 'Activo',
         ];
 
-        if ($data['primer_nombre'] === '' || $data['apellido_paterno'] === '') {
+        if ($data['primer_nombre'] === '' || $data['apellido_paterno'] === '') { // validación mínima
             $errors[] = 'Primer nombre y apellido paterno son obligatorios.';
         } else {
             $newId = Colaborador::create($data);
@@ -81,7 +81,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     $messages[] = 'Colaborador creado. Continúa creando la cuenta de usuario en "Gestionar usuarios".';
                     $_SESSION['flash']['messages'] = $messages;
                     $_SESSION['flash']['errors'] = $errors;
-                    redirect('gestionar_usuarios');
+                    redirect('gestionar_usuarios'); // saltar a gestión usuarios
                 }
             } else {
                 $errors[] = 'No se pudo crear el colaborador.';
@@ -89,7 +89,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
     }
 
-    if ($action === 'update_colaborador') {
+    if ($action === 'update_colaborador') { // actualizar colaborador
         $colabId = $_POST['colab_id'] ?? '';
         if ($colabId) {
             $foto = handle_photo_upload();
@@ -121,7 +121,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
     }
 
-    if ($action === 'delete_colaborador') {
+    if ($action === 'delete_colaborador') { // mover a historial
         $colabId = $_POST['colab_id'] ?? '';
         if ($colabId) {
             if (Colaborador::moveToHistorial($colabId)) {
@@ -141,7 +141,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     redirect('gestionar_colaboradores');
 }
 
-if ($page === 'ver_colaborador') {
+if ($page === 'ver_colaborador') { // detalle de un colaborador
     $colaboradorId = $_GET['id'] ?? null;
     $colaborador = $colaboradorId ? Colaborador::find($colaboradorId) : null;
     $cargoActual = $colaborador ? Cargo::findActivoByColaborador($colaboradorId) : null;
@@ -157,7 +157,7 @@ if ($page === 'ver_colaborador') {
     return;
 }
 
-if ($page === 'ver_historial_cargos') {
+if ($page === 'ver_historial_cargos') { // historial de cargos
     $colaboradorId = $_GET['id'] ?? null;
     $colaborador = $colaboradorId ? Colaborador::find($colaboradorId) : null;
     $historialCargos = $colaborador ? Cargo::historialPorColaborador($colaboradorId) : [];

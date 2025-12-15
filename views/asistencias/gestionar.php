@@ -1,3 +1,4 @@
+<?php // Vista: gestión de asistencias (RRHH/Admin) ?>
 <?php
 $historial = is_array($historial ?? null) ? $historial : [];
 $busqueda = $busqueda ?? '';

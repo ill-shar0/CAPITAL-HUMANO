@@ -3,6 +3,7 @@ require_once BASE_PATH . '/config/db.php';
 
 class Asistencia
 {
+    // Inserta asistencia con entrada (y salida opcional)
     public static function create(string $colabId, string $fecha, string $horaEntrada, ?string $horaSalida = null): ?string
     {
         try {
@@ -24,6 +25,7 @@ class Asistencia
         }
     }
 
+    // Actualiza una asistencia existente
     public static function updateAsistencia(string $asisId, string $fecha, string $horaEntrada, ?string $horaSalida): bool
     {
         try {
@@ -47,6 +49,7 @@ class Asistencia
         }
     }
 
+    // Borra asistencia por ID
     public static function deleteAsistencia(string $asisId): bool
     {
         try {
@@ -58,6 +61,7 @@ class Asistencia
         }
     }
 
+    // Historial por colaborador
     public static function searchByColaborador(string $colabId): array
     {
         try {
@@ -79,6 +83,7 @@ class Asistencia
         }
     }
 
+    // Listado completo (RRHH/Admin)
     public static function todas(): array
     {
         try {

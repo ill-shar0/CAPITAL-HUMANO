@@ -1,3 +1,4 @@
+<!-- Vista: detalle de colaborador y su cargo -->
 <div class="page-header">
     <h1>Detalle de colaborador</h1>
     <?php if ($colaborador): ?>

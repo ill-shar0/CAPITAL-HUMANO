@@ -1,3 +1,4 @@
+<!-- Vista: cambio de contraseña por administrador -->
 <div class="page-header">
     <h1>Cambiar contraseña</h1>
     <p class="help-text">La contraseña la define la empresa; se almacena hasheada y se muestra una sola vez.</p>

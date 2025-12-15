@@ -6,6 +6,7 @@ $user = current_user();
 $rolLabel = $user['usu_rol'] ?? $user['rol'] ?? '—';
 ?>
 
+<!-- Vista: historial personal de asistencias -->
 <div class="page-header">
   <div>
     <h1>Mis asistencias</h1>

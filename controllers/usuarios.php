@@ -6,9 +6,9 @@ require_once BASE_PATH . '/models/Colaborador.php';
 require_once BASE_PATH . '/services/PasswordService.php';
 require_once BASE_PATH . '/services/AuditService.php';
 
-Authz::requireRoles(['administrador', 'recursos_humanos']);
+Authz::requireRoles(['administrador', 'recursos_humanos']); // solo admin/RRHH
 
-$page = $_GET['page'] ?? 'gestionar_usuarios';
+$page = $_GET['page'] ?? 'gestionar_usuarios'; // página actual
 
 /**
  * Flash (para no duplicar POST al refrescar)
@@ -23,20 +23,20 @@ $_SESSION['flash'] = ['messages' => [], 'errors' => []]; // limpiar
 $prefill = $_SESSION['prefill_usuario'] ?? null;
 unset($_SESSION['prefill_usuario']);
 
-function flash_success($msg) {
+function flash_success($msg) { // helper éxito
   $_SESSION['flash']['messages'][] = $msg;
 }
-function flash_error($msg) {
+function flash_error($msg) { // helper error
   $_SESSION['flash']['errors'][] = $msg;
 }
 
-$currentUser = current_user();
-$actorId = $currentUser['user_id'] ?? '';
+$currentUser = current_user();           // usuario en sesión
+$actorId = $currentUser['user_id'] ?? ''; // para auditoría
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-  $action = $_POST['action'] ?? '';
+  $action = $_POST['action'] ?? ''; // acción enviada
 
-  if ($action === 'create_user') {
+  if ($action === 'create_user') { // alta usuario
     $cedula = trim($_POST['cedula'] ?? '');
     $primerNombre = trim($_POST['primer_nombre'] ?? '');
     $apellidoPaterno = trim($_POST['apellido_paterno'] ?? '');
@@ -92,7 +92,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
   }
 
-  if ($action === 'update_role_state') {
+  if ($action === 'update_role_state') { // cambiar rol/estado
     $userId = $_POST['user_id'] ?? '';
     $rol = trim($_POST['rol'] ?? '');
     $estado = trim($_POST['estado'] ?? '1');
@@ -109,7 +109,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
   }
 
-  if ($action === 'toggle_estado') {
+  if ($action === 'toggle_estado') { // activar/desactivar
     $userId = $_POST['user_id'] ?? '';
     $estadoActual = $_POST['estado_actual'] ?? '1';
 
@@ -126,7 +126,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
   }
 
-  if ($action === 'change_pw') {
+  if ($action === 'change_pw') { // cambio de password
     $userId = $_POST['user_id'] ?? '';
     $newPw = trim($_POST['new_password'] ?? '');
 
@@ -148,7 +148,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
   exit;
 }
 
-if ($page === 'cambiar_pw') {
+if ($page === 'cambiar_pw') { // vista de cambio de pw
   $users = User::all();
   render('gestionar_usuarios/cambiar_pw.php', [
     'users' => $users,

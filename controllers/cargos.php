@@ -5,18 +5,18 @@ require_once BASE_PATH . '/models/Cargo.php';
 require_once BASE_PATH . '/models/Colaborador.php';
 require_once BASE_PATH . '/services/AuditService.php';
 
-Authz::requireRoles(['administrador', 'recursos_humanos']);
+Authz::requireRoles(['administrador', 'recursos_humanos']); // acceso restringido
 
-$page = $_GET['page'] ?? 'gestionar_cargos';
-$messages = [];
-$errors = [];
+$page = $_GET['page'] ?? 'gestionar_cargos'; // página solicitada
+$messages = []; // feedback éxito
+$errors = [];   // feedback error
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $action = $_POST['action'] ?? '';
-    $currentUser = current_user();
-    $actorId = $currentUser['user_id'] ?? '';
+    $action = $_POST['action'] ?? '';       // acción enviada
+    $currentUser = current_user();          // usuario en sesión
+    $actorId = $currentUser['user_id'] ?? ''; // para auditoría
 
-    if ($action === 'create_cargo') {
+    if ($action === 'create_cargo') { // crear nuevo cargo
         $nombre = trim($_POST['nombre_cargo'] ?? '');
         $departamento = trim($_POST['departamento_cargo'] ?? '');
         $sueldo = trim($_POST['sueldo_cargo'] ?? '');
@@ -34,7 +34,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
     }
 
-    if ($action === 'update_cargo') {
+    if ($action === 'update_cargo') { // actualizar cargo
         $id = $_POST['cargo_id'] ?? '';
         $nombre = trim($_POST['nombre_cargo'] ?? '');
         $departamento = trim($_POST['departamento_cargo'] ?? '');
@@ -52,7 +52,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
     }
 
-    if ($action === 'delete_cargo') {
+    if ($action === 'delete_cargo') { // eliminar cargo
         $id = $_POST['cargo_id'] ?? '';
         if ($id) {
             if (Cargo::deleteCargo($id)) {
@@ -66,7 +66,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
     }
 
-    if ($action === 'remove_assignment') {
+    if ($action === 'remove_assignment') { // desasignar cargo a colaborador
         $cargoId = $_POST['cargo_id'] ?? '';
         $colabId = $_POST['colab_id'] ?? '';
         if ($cargoId && $colabId) {
@@ -81,7 +81,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
     }
 
-    if ($action === 'assign_cargo') {
+    if ($action === 'assign_cargo') { // asignar cargo a colaborador
         $cargoId = $_POST['cargo_id'] ?? '';
         $colabId = $_POST['colab_id'] ?? '';
         $periodo = $_POST['periodo'] ?? 'Permanente';
@@ -98,7 +98,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 }
 
-if ($page === 'ver_cargo') {
+if ($page === 'ver_cargo') { // detalle cargo
     $cargoId = $_GET['id'] ?? null;
     $cargo = $cargoId ? Cargo::find($cargoId) : null;
     $colaboradores = $cargoId ? Colaborador::porCargo($cargoId) : [];
@@ -112,7 +112,7 @@ if ($page === 'ver_cargo') {
     return;
 }
 
-if ($page === 'asignar_cargo') {
+if ($page === 'asignar_cargo') { // pantalla de asignación
     $cargos = Cargo::all();
     $colaboradores = Colaborador::all();
     render('asignar_cargo/index.php', [

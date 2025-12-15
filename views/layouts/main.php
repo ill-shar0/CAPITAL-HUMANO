@@ -1,4 +1,4 @@
-<?php require_once BASE_PATH . '/views/partials/nav.php'; ?>
+<?php require_once BASE_PATH . '/views/partials/nav.php'; ?> <!-- layout principal con sidebar/nav -->
 <!DOCTYPE html>
 <html lang="es">
 <head>

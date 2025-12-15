@@ -1,3 +1,4 @@
+<!-- Vista: gestión de usuarios (crear, cambiar rol/estado) -->
 <div class="page-header">
     <h1>Gestionar usuarios</h1>
     <p class="help-text">Password autogenerado, estado por defecto activo.</p>
