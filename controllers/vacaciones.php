@@ -9,7 +9,7 @@ require_once BASE_PATH . '/services/PdfService.php';
 
 // Gestionar vacaciones
 if ($page === 'gestionar_vacaciones') {
-    Authz::requireRoles(['administrador', 'recursos_humanos']);
+    Authz::requireRoles(['recursos_humanos']);
 
     $colaboradores = Vacaciones::colaboradoresConVacaciones();
 
@@ -21,6 +21,7 @@ if ($page === 'gestionar_vacaciones') {
 
 // Generar resuelto
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    Authz::requireRoles(['recursos_humanos']);
     $data = [
         'colab_id' => $_POST['colab_id'],
         'nombre'   => $colaborador['colab_primer_nombre'] . ' ' . $colaborador['colab_apellido_paterno'],

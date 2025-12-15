@@ -5,6 +5,24 @@
   <p class="help-text">Resuelto pre-redactado. Complete los campos y genere PDF.</p>
 </div>
 
+<?php
+$diasDisponiblesRaw = $colaborador['vac_dias_vacaciones_validos'] ?? $colaborador['dias_vacaciones_validos'] ?? null;
+$diasDisponibles = $diasDisponiblesRaw !== null ? (int)$diasDisponiblesRaw : null;
+$minimo = 7;
+?>
+
+<div class="alert alert-info">
+  <strong>Requisitos:</strong>
+  <ul class="help-list">
+    <li>Mínimo 7 días por solicitud.</li>
+    <li><?php if ($diasDisponibles !== null): ?>Días disponibles: <?= htmlspecialchars($diasDisponibles) ?>.<?php else: ?>Verifique los días disponibles antes de continuar.<?php endif; ?></li>
+    <li>No pedir más de los días válidos disponibles.</li>
+  </ul>
+  <?php if ($diasDisponibles !== null && $diasDisponibles < $minimo): ?>
+    <div class="alert alert-error" style="margin-top:8px;">El colaborador no cumple el mínimo de días para solicitar vacaciones.</div>
+  <?php endif; ?>
+</div>
+
 <?php if (!empty($messages)): ?>
   <?php foreach ($messages as $msg): ?>
     <div class="alert alert-success"><?= htmlspecialchars($msg) ?></div>
@@ -42,11 +60,25 @@
     <label>Días de vacaciones</label>
     <select name="dias_vacaciones" required>
       <option value="">Seleccione</option>
-      <option value="7">7 días</option>
-      <option value="14">14 días</option>
-      <option value="21">21 días</option>
-      <option value="30">30 días</option>
+      <?php
+        $opciones = [7, 14, 21, 30];
+        $mostroOpcion = false;
+        foreach ($opciones as $opt) {
+            if ($opt < $minimo) {
+                continue;
+            }
+            if ($diasDisponibles !== null && $opt > $diasDisponibles) {
+                continue;
+            }
+            echo '<option value="' . $opt . '">' . $opt . ' días</option>';
+            $mostroOpcion = true;
+        }
+      ?>
+      <?php if (!$mostroOpcion): ?>
+        <option value="" disabled>No hay opciones permitidas (disp. <?= htmlspecialchars($diasDisponibles ?? 0) ?>)</option>
+      <?php endif; ?>
     </select>
+    <p class="help-text">Debe ser ≥ 7 días y ≤ los días disponibles.</p>
 
     <label>Periodo (inicio - fin)</label>
     <div class="grid two-cols">
@@ -61,5 +93,3 @@
   </form>
 
 <?php endif; ?>
-
-<?php $content = ob_get_clean(); ?>

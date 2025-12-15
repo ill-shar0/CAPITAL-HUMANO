@@ -6,6 +6,7 @@ require_once BASE_PATH . '/models/Cargo.php';
 require_once BASE_PATH . '/models/User.php';
 require_once BASE_PATH . '/services/PasswordService.php';
 require_once BASE_PATH . '/services/AuditService.php';
+require_once BASE_PATH . '/helpers/redirect.php';
 
 Authz::requireRoles(['administrador', 'recursos_humanos']);
 
@@ -27,7 +28,7 @@ function handle_photo_upload(): string
     $destName = uniqid('foto_', true) . '.' . $ext;
     $destPath = BASE_PATH . '/public/uploads/fotos/' . $destName;
     if (move_uploaded_file($tmp, $destPath)) {
-        return '/uploads/fotos/' . $destName;
+        return 'uploads/fotos/' . $destName; // sin slash inicial para no duplicar en la vista
     }
     return '';
 }
@@ -36,6 +37,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $action = $_POST['action'] ?? '';
     $currentUser = current_user();
     $actorId = $currentUser['user_id'] ?? '';
+
+    // Limpia flash previo
+    $_SESSION['flash']['messages'] = [];
+    $_SESSION['flash']['errors'] = [];
 
     if ($action === 'create_colaborador') {
         $foto = handle_photo_upload();
@@ -67,23 +72,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
                 // Crear usuario rol colaborador si se solicitó
                 if (($_POST['crear_usuario'] ?? '') === 'si') {
-                    $apellido = $data['apellido_paterno'];
-                    $usernameBase = strtolower(substr($data['primer_nombre'], 0, 1) . $apellido);
-                    $username = $usernameBase;
-                    $i = 1;
-                    while (User::findByUsername($username)) {
-                        $username = $usernameBase . $i;
-                        $i++;
-                    }
-                    $plain = PasswordService::generate();
-                    $hash = PasswordService::hash($plain);
-                    $userId = User::create($username, $hash, 'colaborador', '1', $newId);
-                    if ($userId) {
-                        $messages[] = "Usuario creado para el colaborador. user={$username}, password={$plain}";
-                        AuditService::log($actorId, 'usuario', $userId, 'Creó usuario colaborador');
-                    } else {
-                        $errors[] = 'No se pudo crear el usuario del colaborador (username podría existir).';
-                    }
+                    // Redirigir a gestionar usuarios con datos precargados
+                    $_SESSION['prefill_usuario'] = [
+                        'cedula' => $data['cedula'],
+                        'primer_nombre' => $data['primer_nombre'],
+                        'apellido_paterno' => $data['apellido_paterno'],
+                    ];
+                    $messages[] = 'Colaborador creado. Continúa creando la cuenta de usuario en "Gestionar usuarios".';
+                    $_SESSION['flash']['messages'] = $messages;
+                    $_SESSION['flash']['errors'] = $errors;
+                    redirect('gestionar_usuarios');
                 }
             } else {
                 $errors[] = 'No se pudo crear el colaborador.';
@@ -136,6 +134,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $errors[] = 'Falta colab_id.';
         }
     }
+
+    // PRG: redirigir siempre tras POST para no duplicar envíos
+    $_SESSION['flash']['messages'] = array_merge($_SESSION['flash']['messages'] ?? [], $messages);
+    $_SESSION['flash']['errors'] = array_merge($_SESSION['flash']['errors'] ?? [], $errors);
+    redirect('gestionar_colaboradores');
 }
 
 if ($page === 'ver_colaborador') {

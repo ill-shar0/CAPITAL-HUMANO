@@ -2,6 +2,7 @@
 require_once BASE_PATH . '/middleware/auth.php';
 require_once BASE_PATH . '/services/Authz.php';
 require_once BASE_PATH . '/models/User.php';
+require_once BASE_PATH . '/models/Colaborador.php';
 require_once BASE_PATH . '/services/PasswordService.php';
 require_once BASE_PATH . '/services/AuditService.php';
 
@@ -18,6 +19,10 @@ $messages = $_SESSION['flash']['messages'] ?? [];
 $errors   = $_SESSION['flash']['errors'] ?? [];
 $_SESSION['flash'] = ['messages' => [], 'errors' => []]; // limpiar
 
+// Prefill (por redirección desde colaboradores)
+$prefill = $_SESSION['prefill_usuario'] ?? null;
+unset($_SESSION['prefill_usuario']);
+
 function flash_success($msg) {
   $_SESSION['flash']['messages'][] = $msg;
 }
@@ -32,26 +37,57 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
   $action = $_POST['action'] ?? '';
 
   if ($action === 'create_user') {
-    $username = trim($_POST['username'] ?? '');
+    $cedula = trim($_POST['cedula'] ?? '');
+    $primerNombre = trim($_POST['primer_nombre'] ?? '');
+    $apellidoPaterno = trim($_POST['apellido_paterno'] ?? '');
     $rol = trim($_POST['rol'] ?? 'colaborador');
     $estado = '1';
 
-    if ($username === '' || $rol === '') {
-      flash_error('Username y rol son obligatorios.');
+    if ($cedula === '' || $primerNombre === '' || $apellidoPaterno === '' || $rol === '') {
+      flash_error('Cédula, nombre, apellido y rol son obligatorios.');
     } else {
-      // ✅ genera password y guarda hash
-      $plain = PasswordService::generate();
-      $hash  = PasswordService::hash($plain);
-
-      // ✅ ahora create devuelve TRUE/FALSE real
-      $ok = User::create($username, $hash, $rol, $estado, null);
-
-      if ($ok) {
-        flash_success("Usuario creado. Credenciales: usuario={$username}, password={$plain}");
-        AuditService::log($actorId, 'usuario', $username, "Creó usuario con rol {$rol}");
+      // Buscar colaborador por cédula
+      $colab = Colaborador::findByCedula($cedula);
+      if (!$colab) {
+        flash_error('El colaborador no existe. Primero registre al colaborador.');
       } else {
-        // Si tu modelo detecta duplicado, te devuelve false
-        flash_error('No se pudo crear el usuario (posible username duplicado).');
+        // Si ya tiene usuario
+        $userByColab = User::findByColabId($colab['colab_id']);
+        if ($userByColab) {
+          if (($userByColab['estado_usuario'] ?? '1') === '0') {
+            // Reactivar y regenerar password
+            $plain = PasswordService::generate();
+            $hash  = PasswordService::hash($plain);
+            $reactivated = User::setPassword($userByColab['user_id'], $hash)
+              && User::toggleEstado($userByColab['user_id'], '1');
+            if ($reactivated) {
+              flash_success("Cuenta reactivada. Credenciales: usuario={$userByColab['username']}, password={$plain}");
+              AuditService::log($actorId, 'usuario', $userByColab['user_id'], 'Reactivó cuenta por cédula');
+            } else {
+              flash_error('No se pudo reactivar la cuenta.');
+            }
+          } else {
+            flash_error('El colaborador ya tiene una cuenta activa.');
+          }
+        } else {
+          // Generar username único
+          $username = User::generateUsername(
+            $colab['primer_nombre'] ?? $primerNombre,
+            $colab['apellido_paterno'] ?? $apellidoPaterno
+          );
+
+          $plain = PasswordService::generate();
+          $hash  = PasswordService::hash($plain);
+
+          $ok = User::create($username, $hash, $rol, $estado, $colab['colab_id']);
+
+          if ($ok) {
+            flash_success("Usuario creado. Credenciales: usuario={$username}, password={$plain}");
+            AuditService::log($actorId, 'usuario', $username, "Creó usuario con rol {$rol} vinculado a colaborador");
+          } else {
+            flash_error('No se pudo crear el usuario (posible duplicado).');
+          }
+        }
       }
     }
   }
@@ -127,4 +163,5 @@ render('gestionar_usuarios/index.php', [
   'users' => $users,
   'messages' => $messages,
   'errors' => $errors,
+  'prefill' => $prefill,
 ]);

@@ -52,5 +52,4 @@
         <?php endif; ?>
     </div>
 <?php endif; ?>
-<?php $content = ob_get_clean(); ?>
 

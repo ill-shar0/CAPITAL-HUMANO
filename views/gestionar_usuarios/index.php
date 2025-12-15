@@ -20,8 +20,21 @@
         <input type="hidden" name="action" value="create_user">
         <h3>Crear usuario</h3>
 
-        <label>Username</label>
-        <input type="text" name="username" required>
+        <?php if (!empty($prefill)): ?>
+            <div class="alert alert-info">
+                Datos precargados desde colaborador. Verifique antes de crear.
+            </div>
+        <?php endif; ?>
+
+        <label>Cédula</label>
+        <input type="text" name="cedula" value="<?= htmlspecialchars($prefill['cedula'] ?? '') ?>" required>
+
+        <label>Primer nombre</label>
+        <input type="text" name="primer_nombre" value="<?= htmlspecialchars($prefill['primer_nombre'] ?? '') ?>" required>
+
+        <label>Apellido paterno</label>
+        <input type="text" name="apellido_paterno" value="<?= htmlspecialchars($prefill['apellido_paterno'] ?? '') ?>" required>
+        <p class="help-text">El sistema generará el username: inicial.apellido (+n si existe).</p>
 
         <label>Rol</label>
         <select name="rol" required>

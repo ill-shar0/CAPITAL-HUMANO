@@ -43,5 +43,5 @@
 
     <button class="btn" type="submit">Asignar</button>
 </form>
-<?php $content = ob_get_clean(); ?>
+
 

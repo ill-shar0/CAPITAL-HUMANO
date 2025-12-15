@@ -65,4 +65,4 @@
     </tbody>
 </table>
 
-<?php $content = ob_get_clean(); ?>
+

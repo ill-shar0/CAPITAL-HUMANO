@@ -10,5 +10,4 @@
         <button name="accion" value="salida">Registrar salida</button>
     </form>
 </div>
-<?php $content = ob_get_clean(); ?>
 
