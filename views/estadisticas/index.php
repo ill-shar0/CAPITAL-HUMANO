@@ -17,20 +17,26 @@ ob_start();
 </div>
 
 <div class="stats-grid">
-    <div class="card">
+    <div class="stats-card">
         <h3>Por sexo</h3>
-        <canvas id="sexoChart" height="180"></canvas>
+        <div class="chart-wrap">
+            <canvas id="sexoChart"></canvas>
+        </div>
     </div>
 
     <div class="stats-card">
         <h3>Por dirección</h3>
-        <canvas id="direccionChart" height="180"></canvas>
+        <div class="chart-wrap">
+            <canvas id="direccionChart"></canvas>
+        </div>
     </div>
 </div>
 
 <div class="stats-card full">
     <h3>Por rango de edad</h3>
-    <canvas id="edadChart" height="180"></canvas>
+    <div class="chart-wrap">
+        <canvas id="edadChart"></canvas>
+    </div>
     <p class="help-text">Ejemplo: 25–30 años.</p>
 </div>
 
@@ -39,6 +45,55 @@ ob_start();
 
 <script>
 document.addEventListener('DOMContentLoaded', function () {
+    const palette = ['#4F46E5', '#22C55E', '#F59E0B', '#EF4444', '#3B82F6', '#8B5CF6'];
+
+    const barOptions = () => ({
+        responsive: true,
+        maintainAspectRatio: false,
+        layout: { padding: 8 },
+        plugins: {
+            legend: { display: false },
+            tooltip: {
+                callbacks: {
+                    label: (ctx) => `${ctx.label}: ${ctx.parsed} colaboradores`
+                }
+            }
+        },
+        scales: {
+            x: {
+                ticks: { color: '#444', font: { size: 12 } },
+                grid: { display: false }
+            },
+            y: {
+                beginAtZero: true,
+                ticks: { color: '#444', stepSize: 1 },
+                grid: { color: '#eee' }
+            }
+        }
+    });
+
+    const pieOptions = () => ({
+        responsive: true,
+        maintainAspectRatio: false,
+        layout: { padding: 8 },
+        plugins: {
+            legend: {
+                display: true,
+                position: 'bottom',
+                labels: { usePointStyle: true, padding: 12 }
+            },
+            tooltip: {
+                callbacks: {
+                    label: (ctx) => {
+                        const total = (ctx.dataset.data || []).reduce((a, b) => a + b, 0);
+                        const val = ctx.parsed;
+                        const pct = total ? ((val / total) * 100).toFixed(1) : 0;
+                        return `${ctx.label}: ${val} (${pct}%)`;
+                    }
+                }
+            }
+        }
+    });
 
     // ===================== SEXO =====================
     const sexoEl = document.getElementById('sexoChart');
@@ -50,31 +105,28 @@ document.addEventListener('DOMContentLoaded', function () {
                 datasets: [{
                     label: 'Colaboradores',
                     data: <?= json_encode(array_column($estadisticas['por_sexo'], 'total')) ?>,
-                    backgroundColor: '#4e73df'
+                    backgroundColor: palette[0] ?? '#4F46E5',
+                    borderRadius: 4
                 }]
             },
-            options: {
-                responsive: true,
-                plugins: { legend: { display: false } }
-            }
+            options: barOptions()
         });
     }
 
     // ===================== DIRECCIÓN =====================
     const dirEl = document.getElementById('direccionChart');
     if (dirEl) {
+        const dirLabels = <?= json_encode(array_column($estadisticas['por_direccion'], 'direccion')) ?>;
         new Chart(dirEl, {
             type: 'pie',
             data: {
-                labels: <?= json_encode(array_column($estadisticas['por_direccion'], 'direccion')) ?>,
+                labels: dirLabels,
                 datasets: [{
                     data: <?= json_encode(array_column($estadisticas['por_direccion'], 'total')) ?>,
-                    backgroundColor: [
-                        '#1cc88a', '#36b9cc', '#f6c23e',
-                        '#e74a3b', '#858796', '#20c997'
-                    ]
+                    backgroundColor: dirLabels.map((_, i) => palette[i % palette.length])
                 }]
-            }
+            },
+            options: pieOptions()
         });
     }
 
@@ -88,13 +140,11 @@ document.addEventListener('DOMContentLoaded', function () {
                 datasets: [{
                     label: 'Colaboradores',
                     data: <?= json_encode(array_column($estadisticas['por_rango_edad'], 'total')) ?>,
-                    backgroundColor: '#36b9cc'
+                    backgroundColor: palette[2] ?? '#F59E0B',
+                    borderRadius: 4
                 }]
             },
-            options: {
-                responsive: true,
-                plugins: { legend: { display: false } }
-            }
+            options: barOptions()
         });
     }
 
