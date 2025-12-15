@@ -66,7 +66,7 @@ $colaboradores = is_array($colaboradores ?? null) ? $colaboradores : [];
             <?php foreach ($colaboradores as $col): ?>
                 <tr>
                     <td><?= htmlspecialchars($col['primer_nombre'] . ' ' . $col['apellido_paterno']) ?></td>
-                    <td><?= htmlspecialchars($col['sexo']) ?></td>
+                    <td><?= htmlspecialchars($col['sexo'] ?? '') ?></td>
                     <td>$<?= htmlspecialchars($col['car_sueldo'] ?? '') ?></td>
                 </tr>
             <?php endforeach; ?>

@@ -17,7 +17,7 @@ $actorId = $currentUser['user_id'] ?? ''; // para auditoría
 // GESTIONAR VACACIONES
 // ============================
 if ($page === 'gestionar_vacaciones') {
-    Authz::requireRoles(['recursos_humanos']); // solo RRHH
+    Authz::requireRoles(['recursos_humanos', 'administrador']); // RRHH y Admin
 
     $flash = Flash::get(); // recoger flash PRG
     $messages = [];
@@ -39,7 +39,7 @@ if ($page === 'gestionar_vacaciones') {
 // GENERAR RESUELTO (GET)
 // ============================
 if ($page === 'generar_resuelto' && $_SERVER['REQUEST_METHOD'] === 'GET') {
-    Authz::requireRoles(['recursos_humanos']); // solo RRHH
+    Authz::requireRoles(['recursos_humanos', 'administrador']); // RRHH/Admin
 
     $colabId = $_GET['id'] ?? ''; // id de colaborador
     if ($colabId === '') {
@@ -66,7 +66,7 @@ if ($page === 'generar_resuelto' && $_SERVER['REQUEST_METHOD'] === 'GET') {
 // GENERAR RESUELTO (POST)
 // ============================
 if ($page === 'generar_resuelto' && $_SERVER['REQUEST_METHOD'] === 'POST') {
-    Authz::requireRoles(['recursos_humanos']); // solo RRHH
+    Authz::requireRoles(['recursos_humanos', 'administrador']); // RRHH/Admin
 
     $action = $_POST['action'] ?? ''; // acción enviada
     if ($action !== 'create_resuelto') {
