@@ -2,99 +2,36 @@
 require_once BASE_PATH . '/middleware/auth.php';
 require_once BASE_PATH . '/services/Authz.php';
 require_once BASE_PATH . '/models/Asistencia.php';
-require_once BASE_PATH . '/models/Colaborador.php';
 
 $page = $_GET['page'] ?? 'registrar_asistencia';
 $messages = [];
 $errors = [];
 
-if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $action = $_POST['action'] ?? '';
-    $currentUser = current_user();
-    $actorId = $currentUser['user_id'] ?? '';
+Authz::requireRoles(['colaborador', 'administrador', 'recursos_humanos']);
 
-    if ($action === 'create_asistencia') {
-        $colabId = $_POST['colab_id'] ?? ($currentUser['colab_id'] ?? '');
-        $fecha = $_POST['fecha'] ?? date('Y-m-d');
-        $horaEntrada = $_POST['hora_entrada'] ?? date('H:i:s');
-        $horaSalida = $_POST['hora_salida'] ?? null;
-        if ($colabId) {
-            $newId = Asistencia::create($colabId, $fecha, $horaEntrada, $horaSalida);
-            if ($newId) {
-                $messages[] = 'Asistencia registrada.';
-                AuditService::log($actorId, 'asistencia', $newId, "Registro asistencia colab {$colabId}");
-            } else {
-                $errors[] = 'No se pudo registrar la asistencia.';
-            }
-        } else {
-            $errors[] = 'Falta colaborador.';
-        }
-    }
-
-    if ($action === 'update_asistencia') {
-        $asisId = $_POST['asis_id'] ?? '';
-        $fecha = $_POST['fecha'] ?? '';
-        $horaEntrada = $_POST['hora_entrada'] ?? '';
-        $horaSalida = $_POST['hora_salida'] ?? null;
-        if ($asisId && $fecha && $horaEntrada) {
-            if (Asistencia::updateAsistencia($asisId, $fecha, $horaEntrada, $horaSalida)) {
-                $messages[] = 'Asistencia actualizada.';
-                AuditService::log($actorId, 'asistencia', $asisId, 'Actualizó asistencia');
-            } else {
-                $errors[] = 'No se pudo actualizar la asistencia.';
-            }
-        } else {
-            $errors[] = 'Faltan datos para actualizar.';
-        }
-    }
-
-    if ($action === 'delete_asistencia') {
-        $asisId = $_POST['asis_id'] ?? '';
-        if ($asisId) {
-            if (Asistencia::deleteAsistencia($asisId)) {
-                $messages[] = 'Asistencia eliminada.';
-                AuditService::log($actorId, 'asistencia', $asisId, 'Eliminó asistencia');
-            } else {
-                $errors[] = 'No se pudo eliminar.';
-            }
-        } else {
-            $errors[] = 'Falta asis_id.';
-        }
-    }
-}
-
-// Gestionar asistencias (vista para RRHH y administradores)
-if ($page === 'gestionar_asistencias') {
-    Authz::requireRoles(['administrador', 'recursos_humanos']);
-    $historial = Asistencia::todas();
-    render('asistencias/gestionar.php', [
-        'historial' => $historial,
-    ]);
-    return;
-}
-
-// Eliminar asistencia existente
-if ($page === 'eliminar_asistencia') {
-    Authz::requireRoles(['administrador', 'recursos_humanos']);
-    // Obtener ID de la asistencia a eliminar
-    $id = $_GET['id'] ?? null;
-    // Intentar eliminar la asistencia y mostrar mensaje según el resultado
-    if ($id && Asistencia::delete($id)) {
-        Flash::success('Asistencia eliminada');
-    } else {
-        Flash::error('No se pudo eliminar la asistencia');
-    }
-    // Redirigir de vuelta a la gestión de asistencias
-    redirect('gestionar_asistencias');
-    return;
-}
-
-// Ver asistencias del colaborador actual
+// ============================
+// VER ASISTENCIAS PERSONALES
+// ============================
 if ($page === 'ver_asistencias_personal') {
-    Authz::requireRoles(['colaborador', 'administrador', 'recursos_humanos']);
-    $user = current_user();
-    $colaboradorId = $user['colab_id'] ?? null;
-    $historial = $colaboradorId ? Asistencia::porColaborador($colaboradorId) : [];
+
+   require_once BASE_PATH . '/models/User.php';
+
+$user = current_user();
+$colabId = $user['usu_colab_id'] ?? ($user['colab_id'] ?? null);
+
+// ✅ Si la sesión no trae el colab_id, lo consultamos en BD
+if (!$colabId) {
+    $userId = $user['user_id'] ?? null;
+    if ($userId) {
+        $colabId = User::colabIdByUserId((string)$userId);
+    }
+}
+
+    $historial = $colabId ? Asistencia::porColaborador($colabId) : [];
+    if (!$colabId) {
+        $errors[] = 'Tu usuario no tiene colaborador asociado (usu_colab_id / colab_id).';
+    }
+
     render('asistencias/personal.php', [
         'historial' => $historial,
         'messages' => $messages,
@@ -103,44 +40,83 @@ if ($page === 'ver_asistencias_personal') {
     return;
 }
 
-// Procesar formulario de registro de asistencia
-if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    Authz::requireRoles(['colaborador', 'administrador', 'recursos_humanos']);
-    $user = current_user();
-    $colaboradorId = $user['colab_id'] ?? null;
+// ============================
+// GESTIONAR ASISTENCIAS (RRHH/ADMIN)
+// ============================
+if ($page === 'gestionar_asistencias') {
+    Authz::requireRoles(['administrador', 'recursos_humanos']);
+    $historial = Asistencia::todas();
 
-    if ($colaboradorId) {
-        $accion = $_POST['accion'] ?? '';
-        $fechaActual = date('Y-m-d');
-        $horaActual = date('H:i:s');
-        // Procesar la acción de entrada
-        if ($accion === 'entrada') {
-            // Registrar la entrada
-            $ok = Asistencia::registrarEntrada($colaboradorId, $fechaActual, $horaActual);
-            // Mostrar mensaje según el resultado
-            if (!$ok) {
-                Flash::error('No se pudo registrar la entrada.');
-            } else {
-                Flash::success('Entrada registrada con correctamente.');
+    render('asistencias/gestionar.php', [
+        'historial' => $historial,
+        'messages' => $messages,
+        'errors' => $errors,
+    ]);
+    return;
+}
+
+// ============================
+// REGISTRAR ASISTENCIA
+// ============================
+if ($page === 'registrar_asistencia') {
+
+    $user = current_user();
+    $colabId = $user['usu_colab_id'] ?? $user['colab_id'] ?? null;
+
+    $messages = [];
+    $errors = [];
+    $confirmAction = null;
+
+    $tz = new DateTimeZone('America/Panama');
+    $now = new DateTime('now', $tz);
+
+    $fechaActual = $now->format('Y-m-d');
+    $horaActual  = $now->format('H:i:s');
+
+    if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+        $accion  = $_POST['accion'] ?? '';
+        $confirm = $_POST['confirm'] ?? null;
+
+        if (!$colabId) {
+            $errors[] = 'Tu usuario no tiene colaborador asociado.';
+        } else {
+
+            // Si aún NO confirmó, mostramos modal
+            if (!$confirm && in_array($accion, ['entrada', 'salida'], true)) {
+                $confirmAction = $accion;
             }
-        }
-        // Procesar la acción de salida
-        if ($accion === 'salida') {
-            // Registrar la salida
-            $ok = Asistencia::registrarSalida($colaboradorId, $fechaActual, $horaActual);
-            // Mostrar mensaje según el resultado
-            if (!$ok) {
-                Flash::error('No se pudo registrar la salida.');
-            } else {
-                Flash::success('Salida registrada con correctamente.');
+
+            // Confirmado → ejecutar
+            if ($confirm === 'yes' && $accion === 'entrada') {
+                $ok = Asistencia::registrarEntrada($colabId, $fechaActual, $horaActual);
+                if ($ok) {
+                    $messages[] = "✅ Entrada registrada a las {$horaActual}";
+                } else {
+                    $errors[] = "⚠ Ya existe una entrada registrada hoy.";
+                }
+            }
+
+            if ($confirm === 'yes' && $accion === 'salida') {
+                $ok = Asistencia::registrarSalida($colabId, $fechaActual, $horaActual);
+                if ($ok) {
+                    $messages[] = "✅ Salida registrada a las {$horaActual}";
+                } else {
+                    $errors[] = "⚠ No hay entrada sin salida para hoy.";
+                }
             }
         }
     }
+
+    // Historial
+    $historial = $colabId ? Asistencia::porColaborador($colabId) : [];
+
+    render('asistencias/registrar.php', [
+        'messages' => $messages,
+        'errors' => $errors,
+        'confirmAction' => $confirmAction,
+        'historial' => $historial,
+        'fechaActual' => $fechaActual,
+        'horaActual' => $horaActual,
+    ]);
+    return;
 }
-
-Authz::requireRoles(['colaborador', 'administrador', 'recursos_humanos']);
-render('asistencias/registrar.php', [
-    'messages' => $messages,
-    'errors' => $errors,
-]);
-

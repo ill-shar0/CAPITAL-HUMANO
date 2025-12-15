@@ -5,25 +5,29 @@ class Vacaciones
 {
     // Obtener colaboradores con días válidos de vacaciones
     public static function colaboradoresConVacaciones(): array
-    {
-        $db = get_db();
+{
+    $db = get_db();
 
-        $sql = "
-            SELECT
-                c.colab_id,
-                CONCAT(c.colab_primer_nombre, ' ', c.colab_apellido_paterno) AS nombre,
-                c.colab_car_cargo,
-                COUNT(a.asis_id) AS dias_trabajados,
-                FLOOR(COUNT(a.asis_id) / 11) AS dias_vacaciones_validos
-            FROM colaboradores c
-            LEFT JOIN asistencias a ON a.asis_colab_id = c.colab_id
-            WHERE c.colab_estado_colaborador = 'Activo'
-            GROUP BY c.colab_id
-            HAVING dias_vacaciones_validos >= 7
-        ";
+    $sql = "
+        SELECT
+            c.colab_id,
+            c.colab_primer_nombre AS primer_nombre,
+            c.colab_apellido_paterno AS apellido_paterno,
+            c.colab_car_cargo AS car_cargo,
+            COUNT(a.asis_id) AS dias_trabajados,
+            FLOOR(COUNT(a.asis_id) / 11) AS dias_vacaciones_validos,
+            IF(FLOOR(COUNT(a.asis_id) / 11) >= 7, 'Válido', 'No válido') AS estado_vacaciones
+        FROM colaboradores c
+        LEFT JOIN asistencias a 
+            ON a.asis_colab_id = c.colab_id
+        WHERE c.colab_estado_colaborador = 'Activo'
+        GROUP BY c.colab_id
+        HAVING dias_vacaciones_validos >= 7
+    ";
 
-        return $db->query($sql)->fetchAll();
-    }
+    return $db->query($sql)->fetchAll();
+}
+
 
     // Obtener datos para el resuelto
     public static function datosColaborador(string $colabId): ?array

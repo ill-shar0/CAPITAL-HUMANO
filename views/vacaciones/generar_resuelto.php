@@ -1,5 +1,3 @@
-<?php ob_start(); ?>
-
 <div class="page-header">
   <h1>Generar resuelto</h1>
   <p class="help-text">Resuelto pre-redactado. Complete los campos y genere PDF.</p>
@@ -61,5 +59,3 @@
   </form>
 
 <?php endif; ?>
-
-<?php $content = ob_get_clean(); ?>
