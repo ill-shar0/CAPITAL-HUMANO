@@ -3,6 +3,7 @@ require_once BASE_PATH . '/config/db.php';
 
 class Cargo
 {
+    // Crea un cargo con ID generado (tipo UUID_SHORT)
     public static function create(string $nombre, string $departamento, string $sueldo, string $ocupacion): ?string
     {
         // UUID_SHORT no es recuperable con lastInsertId() en PDO; generamos el ID antes.
@@ -36,6 +37,7 @@ class Cargo
         }
     }
 
+    // Actualiza datos básicos de un cargo
     public static function updateCargo(string $cargoId, string $nombre, string $departamento, string $sueldo, string $ocupacion): bool
     {
         try {
@@ -61,6 +63,7 @@ class Cargo
         }
     }
 
+    // Borra cargo y desactiva asignaciones relacionadas
     public static function deleteCargo(string $cargoId): bool
     {
         try {
@@ -104,6 +107,7 @@ class Cargo
         }
     }
 
+    // Lista todos los cargos
     public static function all(): array
     {
         try {
@@ -125,6 +129,7 @@ class Cargo
         }
     }
 
+    // Busca un cargo por ID
     public static function find(string $id): ?array
     {
         try {
@@ -148,6 +153,7 @@ class Cargo
         }
     }
 
+    // Cargo activo de un colaborador
     public static function findActivoByColaborador(string $colabId): ?array
     {
         try {
@@ -172,6 +178,7 @@ class Cargo
         }
     }
 
+    // Historial de cargos de un colaborador
     public static function historialPorColaborador(string $colabId): array
     {
         try {
@@ -195,6 +202,7 @@ class Cargo
         }
     }
 
+    // Asigna cargo (desactiva previos y actualiza datos rápidos)
     public static function assignToColaborador(string $colabId, string $cargoId, string $periodo): bool
     {
         try {
@@ -250,6 +258,7 @@ class Cargo
         }
     }
 
+    // Desactiva asignación puntual
     public static function removeAssignment(string $colabId, string $cargoId): bool
     {
         try {

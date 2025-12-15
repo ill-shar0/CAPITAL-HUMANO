@@ -1,3 +1,4 @@
+<!-- Vista: historial de cargos de un colaborador -->
 <div class="page-header">
     <h1>Historial de cargos</h1>
     <?php if ($colaborador): ?>

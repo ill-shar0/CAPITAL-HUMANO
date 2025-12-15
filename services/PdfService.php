@@ -1,19 +1,16 @@
 <?php
-require_once BASE_PATH . '/vendor/autoload.php';
-
-// Usar Dompdf
-// DomPDF es una librería gratuita de PHP que funciona como un conversor de HTML a PDF,
-// permitiendo a los desarrolladores generar documentos PDF a partir de código HTML y CSS,
-// renderizando estilos y atributos de forma similar a un navegador web.
+require_once BASE_PATH . '/vendor/autoload.php'; // carga Dompdf
 
 use Dompdf\Dompdf;
 
 class PdfService
 {
+    // Genera PDF de resuelto usando Dompdf y devuelve ruta relativa
     public static function generateResuelto(array $data): string
     {
         $dompdf = new Dompdf();
 
+        // Plantilla HTML simple (se puede reemplazar por una más formal)
         $html = '
         <h2 style="text-align:center;">RESUELTO DE VACACIONES</h2>
 
@@ -34,20 +31,20 @@ class PdfService
         <p>Recursos Humanos</p>
         ';
 
-        $dompdf->loadHtml($html);
-        $dompdf->setPaper('A4');
-        $dompdf->render();
+        $dompdf->loadHtml($html); // carga HTML
+        $dompdf->setPaper('A4'); // tamaño
+        $dompdf->render(); // renderiza PDF
 
         $dir = BASE_PATH . '/public/uploads/resueltos';
         if (!is_dir($dir)) {
-            mkdir($dir, 0755, true);
+            mkdir($dir, 0755, true); // crea carpeta si no existe
         }
 
-        $filename = 'resuelto_' . $data['colab_id'] . '_' . time() . '.pdf';
+        $filename = 'resuelto_' . $data['colab_id'] . '_' . time() . '.pdf'; // nombre único
         $path = $dir . '/' . $filename;
 
-        file_put_contents($path, $dompdf->output());
+        file_put_contents($path, $dompdf->output()); // guarda en disco
 
-        return '/uploads/resueltos/' . $filename;
+        return '/uploads/resueltos/' . $filename; // ruta pública relativa
     }
 }

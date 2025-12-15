@@ -1,3 +1,4 @@
+<?php // Vista: edición de una asistencia ?>
 <?php
 $asistencia = $asistencia ?? null;
 ob_start();

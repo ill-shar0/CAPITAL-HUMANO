@@ -1,4 +1,4 @@
-<?php
+<?php // Vista: reporte de colaboradores con filtros y export CSV
 $filtros = is_array($filtros ?? null) ? $filtros : [];
 $colaboradores = is_array($colaboradores ?? null) ? $colaboradores : [];
 ?>

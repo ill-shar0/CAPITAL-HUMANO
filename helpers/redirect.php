@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Redirige usando BASE_URL. Si se pasa un valor sin slash ni http(s),
+ * Redirige usando BASE_URL. Si no es URL absoluta ni empieza con slash,
  * se asume como page de index.php?page=...
  */
 function redirect(string $url): void

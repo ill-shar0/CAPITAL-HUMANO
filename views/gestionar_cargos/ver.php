@@ -1,3 +1,4 @@
+<!-- Vista: detalle de un cargo y colaboradores asignados -->
 <div class="page-header">
     <h1>Detalle de cargo</h1>
     <?php if ($cargo): ?>

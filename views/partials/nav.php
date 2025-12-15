@@ -1,6 +1,6 @@
 <?php
-$user = current_user();
-$links = [];
+$user = current_user(); // usuario en sesión
+$links = []; // links permitidos según rol
 
 if ($user && $user['rol'] === 'administrador') {
     $links[] = ['Gestión de usuarios', BASE_URL . '/index.php?page=gestionar_usuarios'];

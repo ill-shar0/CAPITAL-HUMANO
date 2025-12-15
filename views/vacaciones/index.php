@@ -1,3 +1,4 @@
+<!-- Vista: listado y gestión de vacaciones/resueltos -->
 <div class="page-header">
   <h1>Gestionar vacaciones</h1>
   <p class="help-text">Cálculo: 1 día de vacaciones por cada 11 días trabajados. Solicitudes mínimo 7 días.</p>
@@ -13,12 +14,14 @@
 </div>
 
 <?php if (!empty($messages)): ?>
+  <!-- Mensajes de éxito -->
   <?php foreach ($messages as $msg): ?>
     <div class="alert alert-success"><?= htmlspecialchars($msg) ?></div>
   <?php endforeach; ?>
 <?php endif; ?>
 
 <?php if (!empty($errors)): ?>
+  <!-- Mensajes de error -->
   <?php foreach ($errors as $err): ?>
     <div class="alert alert-error"><?= htmlspecialchars($err) ?></div>
   <?php endforeach; ?>
@@ -50,9 +53,18 @@
               <?php if ($disp < 7): ?>
                 <span class="help-text">No cumple mínimo (disp. <?= $disp ?> días)</span>
               <?php else: ?>
-                <a class="btn-link" href="<?= BASE_URL ?>/index.php?page=generar_resuelto&id=<?= urlencode($item['colab_id']) ?>">
-                  Generar Resuelto
-                </a>
+            <!-- Acciones: generar resuelto y ver último PDF -->
+                <div style="display:flex; gap:8px; align-items:center; flex-wrap:wrap;">
+                  <a class="btn-link" href="<?= BASE_URL ?>/index.php?page=generar_resuelto&id=<?= urlencode($item['colab_id']) ?>">
+                    Generar Resuelto
+                  </a>
+                  <?php if (!empty($item['resuelto_pdf_path'])): ?>
+                    <span class="divider" style="color:#999;">|</span>
+                    <a class="btn-link" href="<?= BASE_URL . $item['resuelto_pdf_path'] ?>" target="_blank" rel="noopener">
+                      Ver PDF
+                    </a>
+                  <?php endif; ?>
+                </div>
                 <div class="help-text">Mín. 7, máx. <?= $disp ?> días</div>
               <?php endif; ?>
             <?php else: ?>

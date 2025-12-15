@@ -1,5 +1,5 @@
 <?php
-require_once __DIR__ . '/../config/app.php';
+require_once __DIR__ . '/../config/app.php'; // carga BASE_URL y render
 ?>
 <!DOCTYPE html>
 <html lang="es">
@@ -7,12 +7,12 @@ require_once __DIR__ . '/../config/app.php';
   <meta charset="UTF-8">
   <title>Capital Humano | Sistema de Gestión</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <link rel="stylesheet" href="<?= BASE_URL ?>/assets/css/main.css">
+  <link rel="stylesheet" href="<?= BASE_URL ?>/assets/css/main.css"> <!-- estilos públicos -->
 </head>
 
-<body class="public-body">
+<body class="public-body"> <!-- landing pública -->
 
-<header class="public-topbar">
+<header class="public-topbar"> <!-- barra superior -->
   <div class="brand">Capital Humano</div>
   <nav class="public-nav">
     <a class="nav-link" href="#beneficios">Beneficios</a>
@@ -22,7 +22,7 @@ require_once __DIR__ . '/../config/app.php';
   </nav>
 </header>
 
-<section class="hero">
+<section class="hero"> <!-- sección hero -->
   <div class="hero-content">
     <h1>Gestiona tu talento de forma simple, segura y profesional</h1>
     <p>
@@ -69,7 +69,7 @@ require_once __DIR__ . '/../config/app.php';
   </div>
 </section>
 
-<section class="section" id="beneficios">
+<section class="section" id="beneficios"> <!-- beneficios -->
   <div class="section-header">
     <h2>Beneficios para RRHH</h2>
     <p class="help-text">Más organización, menos papeles, mejor control.</p>
@@ -91,7 +91,7 @@ require_once __DIR__ . '/../config/app.php';
   </div>
 </section>
 
-<section class="section" id="modulos">
+<section class="section" id="modulos"> <!-- módulos -->
   <div class="section-header">
     <h2>Módulos principales</h2>
     <p class="help-text">Componentes clave del sistema.</p>
@@ -109,7 +109,7 @@ require_once __DIR__ . '/../config/app.php';
   </div>
 </section>
 
-<section class="section" id="seguridad">
+<section class="section" id="seguridad"> <!-- seguridad -->
   <div class="section-header">
     <h2>Seguridad</h2>
     <p class="help-text">Protección de datos sensibles de RRHH.</p>
@@ -131,7 +131,7 @@ require_once __DIR__ . '/../config/app.php';
   </div>
 </section>
 
-<footer class="public-footer">
+<footer class="public-footer"> <!-- pie de página -->
   <div><strong>© Capital Humano</strong> — Sistema de gestión RRHH.</div>
 </footer>
 

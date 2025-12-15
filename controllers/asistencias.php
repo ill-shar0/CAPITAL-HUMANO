@@ -9,17 +9,17 @@ $page = $_GET['page'] ?? 'registrar_asistencia';
 $messages = [];
 $errors = [];
 
-Authz::requireRoles(['colaborador', 'administrador', 'recursos_humanos']);
+Authz::requireRoles(['colaborador', 'administrador', 'recursos_humanos']); // roles permitidos
 
 // ============================
 // VER ASISTENCIAS PERSONALES
 // ============================
 if ($page === 'ver_asistencias_personal') {
 
-   require_once BASE_PATH . '/models/User.php';
+   require_once BASE_PATH . '/models/User.php'; // para buscar colab_id si falta
 
-$user = current_user();
-$colabId = $user['usu_colab_id'] ?? ($user['colab_id'] ?? null);
+$user = current_user(); // sesión
+$colabId = $user['usu_colab_id'] ?? ($user['colab_id'] ?? null); // colab asociado
 
 // ✅ Si la sesión no trae el colab_id, lo consultamos en BD
 if (!$colabId) {
@@ -29,7 +29,7 @@ if (!$colabId) {
     }
 }
 
-    $historial = $colabId ? Asistencia::porColaborador($colabId) : [];
+    $historial = $colabId ? Asistencia::porColaborador($colabId) : []; // historial propio
     if (!$colabId) {
         $errors[] = 'Tu usuario no tiene colaborador asociado (usu_colab_id / colab_id).';
     }
@@ -46,8 +46,8 @@ if (!$colabId) {
 // GESTIONAR ASISTENCIAS (RRHH/ADMIN)
 // ============================
 if ($page === 'gestionar_asistencias') {
-    Authz::requireRoles(['administrador', 'recursos_humanos']);
-    $historial = Asistencia::todas();
+    Authz::requireRoles(['administrador', 'recursos_humanos']); // solo RRHH/Admin
+    $historial = Asistencia::todas(); // listado completo
 
     render('asistencias/gestionar.php', [
         'historial' => $historial,
@@ -62,15 +62,15 @@ if ($page === 'gestionar_asistencias') {
 // ============================
 if ($page === 'registrar_asistencia') {
 
-    $user = current_user();
-    $colabId = $user['usu_colab_id'] ?? $user['colab_id'] ?? null;
+    $user = current_user(); // sesión
+    $colabId = $user['usu_colab_id'] ?? $user['colab_id'] ?? null; // colab asociado
 
     $messages = [];
     $errors = [];
     $confirmAction = null;
 
-    $tz = new DateTimeZone('America/Panama');
-    $now = new DateTime('now', $tz);
+    $tz = new DateTimeZone('America/Panama'); // huso horario
+    $now = new DateTime('now', $tz); // fecha/hora actual
 
     $fechaActual = $now->format('Y-m-d');
     $horaActual  = $now->format('H:i:s');

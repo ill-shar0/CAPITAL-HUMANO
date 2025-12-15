@@ -1,3 +1,4 @@
+<!-- Vista: gestión de cargos (crear/editar/listar) -->
 <div class="page-header">
     <h1>Gestionar cargos</h1>
 </div>

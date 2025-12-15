@@ -1,4 +1,4 @@
-<?php
+<?php // Vista: tablero de estadísticas (sexo, dirección, edad)
 // Seguridad defensiva
 $estadisticas = is_array($estadisticas ?? null) ? $estadisticas : [
     'por_sexo' => [],
