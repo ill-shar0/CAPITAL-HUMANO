@@ -1,7 +1,7 @@
 <?php
 require_once BASE_PATH . '/middleware/auth.php';
 require_once BASE_PATH . '/services/Authz.php';
-require_once BASE_PATH . '/models/Vacacion.php';
+require_once BASE_PATH . '/models/Vacaciones.php';
 require_once BASE_PATH . '/models/Colaborador.php';
 require_once BASE_PATH . '/models/Resuelto.php';
 require_once BASE_PATH . '/services/AuditService.php';
@@ -13,7 +13,7 @@ if ($page === 'gestionar_vacaciones') {
 
     $colaboradores = Vacaciones::colaboradoresConVacaciones();
 
-    render('vacaciones/gestionar.php', [
+    render('vacaciones/index.php', [
         'colaboradores' => $colaboradores
     ]);
     return;

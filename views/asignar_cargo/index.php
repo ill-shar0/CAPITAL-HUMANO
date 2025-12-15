@@ -1,4 +1,3 @@
-<?php ob_start(); ?>
 <div class="page-header">
     <h1>Asignar cargo</h1>
     <p class="help-text">Seleccione cargo, colaborador y periodo (Permanente, Eventual o Interino).</p>
@@ -43,5 +42,4 @@
 
     <button class="btn" type="submit">Asignar</button>
 </form>
-<?php $content = ob_get_clean(); ?>
 

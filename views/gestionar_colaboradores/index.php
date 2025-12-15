@@ -1,4 +1,3 @@
-<?php ob_start(); ?>
 <div class="page-header">
     <h1>Gestionar colaboradores</h1>
     <p class="help-text">El estado por defecto es Activo. Puede generar usuario con rol colaborador.</p>
@@ -105,5 +104,4 @@
         </table>
     </div>
 </div>
-<?php $content = ob_get_clean(); ?>
 

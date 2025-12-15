@@ -1,5 +1,3 @@
-<?php ob_start(); ?>
-
 <div class="page-header">
   <h1>Gestionar vacaciones</h1>
   <p class="help-text">Cálculo: 1 día de vacaciones por cada 11 días trabajados. Solicitudes mínimo 7 días.</p>
@@ -53,5 +51,3 @@
     <?php endif; ?>
   </tbody>
 </table>
-
-<?php $content = ob_get_clean(); ?>

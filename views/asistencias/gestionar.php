@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 <?php
 $historial = is_array($historial ?? null) ? $historial : [];
 $busqueda = $busqueda ?? '';
@@ -7,6 +8,9 @@ ob_start();
 <div class="asistencias-page">
 
   <div class="page-header">
+=======
+<div class="page-header">
+>>>>>>> 91616df4df6ad8d1c4e7185da467ba67478297ff
     <h1>Gestionar asistencias</h1>
 
     <form method="GET" class="search-bar" action="<?= BASE_URL ?>/index.php">
@@ -35,32 +39,3 @@ ob_start();
         </tr>
       </thead>
 
-      <tbody>
-        <?php if (!empty($historial)): ?>
-          <?php foreach ($historial as $item): ?>
-            <tr>
-              <td><?= htmlspecialchars(($item['colab_primer_nombre'] ?? '') . ' ' . ($item['colab_apellido_paterno'] ?? '')) ?></td>
-              <td><?= htmlspecialchars($item['asis_fecha'] ?? '') ?></td>
-              <td><?= htmlspecialchars($item['asis_hora_entrada'] ?? '') ?></td>
-              <td><?= htmlspecialchars($item['asis_hora_salida'] ?? '-') ?></td>
-              <td class="actions">
-                <a class="btn-link"
-                   href="<?= BASE_URL ?>/index.php?page=editar_asistencia&id=<?= urlencode($item['asis_id'] ?? '') ?>">
-                  Editar
-                </a>
-                <a class="btn-link danger"
-                   href="<?= BASE_URL ?>/index.php?page=eliminar_asistencia&id=<?= urlencode($item['asis_id'] ?? '') ?>"
-                   onclick="return confirm('¿Eliminar esta asistencia?');">
-                  Eliminar
-                </a>
-              </td>
-            </tr>
-          <?php endforeach; ?>
-        <?php else: ?>
-          <tr><td colspan="5">Sin asistencias cargadas.</td></tr>
-        <?php endif; ?>
-      </tbody>
-    </table>
-  </div>
-
-</div>

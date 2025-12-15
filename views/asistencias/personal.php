@@ -1,4 +1,3 @@
-<?php ob_start(); ?>
 <div class="page-header">
     <h1>Mis asistencias</h1>
 </div>

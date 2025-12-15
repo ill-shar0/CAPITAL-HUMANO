@@ -1,4 +1,3 @@
-<?php ob_start(); ?>
 <div class="page-header">
     <h1>Registrar asistencia</h1>
     <p class="help-text">Use Entrada/Salida para capturar fecha y hora exactas.</p>

@@ -1,4 +1,3 @@
-<?php ob_start(); ?>
 <div class="page-header">
     <h1>Historial de cargos</h1>
     <?php if ($colaborador): ?>
@@ -34,5 +33,4 @@
         <?php endif; ?>
     </tbody>
 </table>
-<?php $content = ob_get_clean(); ?>
 
