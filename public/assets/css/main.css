@@ -691,3 +691,100 @@ body {
   cursor: default;
   border-color: #2f5fd0;
 }
+
+/* ==========================================
+   REPORTES – MEJORA VISUAL (SOLO REPORTES)
+========================================== */
+
+/* Contenedor de filtros del reporte */
+.page-header + .filters {
+  display: grid;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  gap: 16px 18px;
+  background: #ffffff;
+  padding: 20px 22px;
+  border-radius: 14px;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.08);
+  margin-bottom: 22px;
+  align-items: end;
+}
+
+/* Labels del reporte */
+.page-header + .filters label {
+  font-size: 15px;        /* ⬅ más grande */
+  font-weight: 700;
+  color: #1f2937;
+  margin-bottom: 6px;
+  display: block;
+}
+
+/* Inputs y selects del reporte */
+.page-header + .filters input,
+.page-header + .filters select {
+  height: 44px;           /* ⬅ más altos */
+  width: 100%;
+  padding: 10px 12px;
+  border-radius: 10px;
+  border: 1px solid #cbd5e1;
+  background: #f9fafb;
+  font-size: 15px;        /* ⬅ texto más grande */
+  color: #111827;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease, background 0.2s;
+}
+
+/* Placeholder */
+.page-header + .filters input::placeholder {
+  color: #9ca3af;
+  font-size: 14px;
+}
+
+/* Focus elegante */
+.page-header + .filters input:focus,
+.page-header + .filters select:focus {
+  outline: none;
+  border-color: #2563eb;
+  background: #ffffff;
+  box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.15);
+}
+
+/* Botonera del reporte */
+.page-header + .filters .actions {
+  grid-column: span 6;
+  display: flex;
+  gap: 12px;
+  justify-content: flex-end;
+  margin-top: 8px;
+}
+
+/* Botones del reporte */
+.page-header + .filters .btn {
+  height: 42px;
+  padding: 0 18px;
+  font-size: 14px;
+  border-radius: 10px;
+}
+
+/* =========================
+   RESPONSIVE REPORTES
+========================= */
+@media (max-width: 1024px) {
+  .page-header + .filters {
+    grid-template-columns: repeat(3, 1fr);
+  }
+
+  .page-header + .filters .actions {
+    grid-column: span 3;
+    justify-content: center;
+  }
+}
+
+@media (max-width: 600px) {
+  .page-header + .filters {
+    grid-template-columns: 1fr;
+  }
+
+  .page-header + .filters .actions {
+    grid-column: span 1;
+    flex-direction: column;
+  }
+}

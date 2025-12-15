@@ -83,7 +83,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
   <!-- Footer centrado -->
   <footer class="auth-footer">
-    © <?= date('Y') ?> Capital Humano — Demo académica
+    © <?= date('Y') ?> Capital Humano
   </footer>
 
 </body>
