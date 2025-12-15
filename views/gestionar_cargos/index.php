@@ -1,4 +1,3 @@
-<?php ob_start(); ?>
 <div class="page-header">
     <h1>Gestionar cargos</h1>
 </div>
@@ -78,5 +77,4 @@
         </table>
     </div>
 </div>
-<?php $content = ob_get_clean(); ?>
 

@@ -3,9 +3,12 @@
     <p class="help-text">Use Entrada/Salida para capturar fecha y hora exactas.</p>
 </div>
 
-<?php foreach ($messages as $m): ?>
-    <div class="alert alert-success"><?= htmlspecialchars($m) ?></div>
-<?php endforeach; ?>
+<div class="actions-row">
+    <form method="post">
+        <button name="accion" value="entrada">Registrar entrada</button>
+        <button name="accion" value="salida">Registrar salida</button>
+    </form>
+</div>
 
 <?php foreach ($errors as $e): ?>
     <div class="alert alert-error"><?= htmlspecialchars($e) ?></div>

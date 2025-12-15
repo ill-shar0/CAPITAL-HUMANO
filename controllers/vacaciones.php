@@ -16,7 +16,7 @@ if ($page === 'gestionar_vacaciones') {
     $vacaciones = Vacaciones::colaboradoresConVacaciones();
 
     render('vacaciones/index.php', [
-        'vacaciones' => $vacaciones
+        'colaboradores' => $colaboradores
     ]);
     return;
 }

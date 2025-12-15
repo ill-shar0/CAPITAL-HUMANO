@@ -142,3 +142,37 @@ INSERT INTO usuarios (
   NOW(),
   NOW()
 );
+
+-- User: colab1
+-- Password: colaborador12345
+INSERT INTO usuarios (
+  user_id, username, usu_password_hash, usu_rol, usu_estado_usuario,
+  usu_colab_id, usu_fecha_creacion, usu_ultima_actualizacion
+) VALUES (
+  CAST(UUID_SHORT() AS CHAR),
+  'colab1',
+  '$2y$10$Jx6SQK1v3WJ2mEFjYL0z7uxQHY9ORl5dDGVh2Uw8A7G6zeiZKlQeq',
+  'colaborador',
+  '1',
+  NULL,  -- o el colab_id si ya tienes el colaborador creado
+  NOW(),
+  NOW()
+);
+
+-- User: rrhh1
+-- Password: recursos12345
+INSERT INTO usuarios (
+  user_id, username, usu_password_hash, usu_rol, usu_estado_usuario,
+  usu_colab_id, usu_fecha_creacion, usu_ultima_actualizacion
+) VALUES (
+  CAST(UUID_SHORT() AS CHAR),
+  'rrhh1',
+  '$2y$10$G3ygxqdMPL78AJgk7juUs.jGYZ0l.iqPWw2h5y7.X2GhF.VRuwA02',
+  'recursos_humanos',
+  '1',
+  NULL,
+  NOW(),
+  NOW()
+);
+
+

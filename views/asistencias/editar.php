@@ -1,27 +1,33 @@
 <?php
 $asistencia = $asistencia ?? null;
+ob_start();
 ?>
-<!DOCTYPE html>
-<html lang="es">
-<head>
-    <meta charset="UTF-8">
-    <title>Editar Asistencia</title>
-</head>
-<body>
-    <h1>Editar Asistencia</h1>
-    <form method="POST" action="">
-        <input type="hidden" name="id" value="<?= $asistencia['asis_id'] ?>">
-        
-        <label for="fecha">Fecha:</label>
-        <input type="date" name="fecha" id="fecha" value="<?= $asistencia['asis_fecha'] ?>" required><br><br>
 
-        <label for="hora_entrada">Hora de Entrada:</label>
-        <input type="time" name="hora_entrada" id="hora_entrada" value="<?= $asistencia['asis_hora_entrada'] ?>" required><br><br>
+<div class="page-header">
+    <h1>Editar asistencia</h1>
+</div>
 
-        <label for="hora_salida">Hora de Salida:</label>
-        <input type="time" name="hora_salida" id="hora_salida" value="<?= $asistencia['asis_hora_salida'] ?>"><br><br>
+<form method="POST" class="form-card">
+    <input type="hidden" name="action" value="update_asistencia">
+    <input type="hidden" name="asis_id" value="<?= htmlspecialchars($asistencia['asis_id']) ?>">
 
-        <button type="submit">Actualizar Asistencia</button>
-    </form>
-</body>
-</html>
+    <label>Fecha</label>
+    <input type="date" name="fecha"
+           value="<?= htmlspecialchars($asistencia['asis_fecha']) ?>" required>
+
+    <label>Hora de entrada</label>
+    <input type="time" name="hora_entrada"
+           value="<?= htmlspecialchars($asistencia['asis_hora_entrada']) ?>" required>
+
+    <label>Hora de salida</label>
+    <input type="time" name="hora_salida"
+           value="<?= htmlspecialchars($asistencia['asis_hora_salida'] ?? '') ?>">
+
+    <div class="actions-row">
+        <button type="submit" class="btn">Guardar cambios</button>
+        <a href="<?= BASE_URL ?>/index.php?page=gestionar_asistencias"
+           class="btn secondary">Cancelar</a>
+    </div>
+</form>
+
+<?php
