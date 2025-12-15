@@ -16,7 +16,7 @@ if ($page === 'gestionar_vacaciones') {
     $vacaciones = Vacaciones::colaboradoresConVacaciones();
 
     render('vacaciones/index.php', [
-        'colaboradores' => $colaboradores
+        'vacaciones' => $vacaciones
     ]);
     return;
 }
@@ -53,7 +53,7 @@ if ($page === 'generar_resuelto' && $_SERVER['REQUEST_METHOD'] === 'POST') {
 
     $colabId = $_POST['colab_id'] ?? null;
 
-    // 🔑 OBTENER COLABORADOR (ESTO FALTABA)
+    // 🔑 OBTENER COLABORADOR
     $colaborador = $colabId ? Vacaciones::datosColaborador($colabId) : null;
 
     if (!$colaborador) {
@@ -66,7 +66,6 @@ if ($page === 'generar_resuelto' && $_SERVER['REQUEST_METHOD'] === 'POST') {
         return;
     }
 
-    // Armar data del resuelto
     $data = [
         'colab_id' => $colabId,
         'nombre'   => $colaborador['colab_primer_nombre'] . ' ' . $colaborador['colab_apellido_paterno'],
@@ -77,7 +76,6 @@ if ($page === 'generar_resuelto' && $_SERVER['REQUEST_METHOD'] === 'POST') {
         'fin'      => $_POST['periodo_fin'] ?? '',
     ];
 
-    // Validaciones mínimas
     if ($data['dias'] <= 0 || !$data['inicio'] || !$data['fin']) {
         $errors[] = 'Debe completar correctamente todos los campos.';
         render('vacaciones/generar_resuelto.php', [
@@ -88,10 +86,8 @@ if ($page === 'generar_resuelto' && $_SERVER['REQUEST_METHOD'] === 'POST') {
         return;
     }
 
-    // Generar PDF
     $pdfPath = PdfService::generateResuelto($data);
 
-    // Guardar resuelto
     Vacaciones::guardarResuelto(
         $data['colab_id'],
         $data['dias'],
