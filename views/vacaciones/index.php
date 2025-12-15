@@ -3,6 +3,15 @@
   <p class="help-text">Cálculo: 1 día de vacaciones por cada 11 días trabajados. Solicitudes mínimo 7 días.</p>
 </div>
 
+<div class="alert alert-info">
+  <strong>Requisitos:</strong>
+  <ul class="help-list">
+    <li>Mínimo 7 días por solicitud.</li>
+    <li>No pedir más de los días válidos disponibles.</li>
+    <li>Solo RRHH / Administrador pueden generar resueltos.</li>
+  </ul>
+</div>
+
 <?php if (!empty($messages)): ?>
   <?php foreach ($messages as $msg): ?>
     <div class="alert alert-success"><?= htmlspecialchars($msg) ?></div>
@@ -37,9 +46,15 @@
           <td><?= htmlspecialchars($item['estado_vacaciones'] ?? '') ?></td>
           <td>
             <?php if (!empty($item['colab_id'])): ?>
-              <a class="btn-link" href="<?= BASE_URL ?>/index.php?page=generar_resuelto&id=<?= urlencode($item['colab_id']) ?>">
-                Generar Resuelto
-              </a>
+              <?php $disp = (int)($item['dias_vacaciones_validos'] ?? 0); ?>
+              <?php if ($disp < 7): ?>
+                <span class="help-text">No cumple mínimo (disp. <?= $disp ?> días)</span>
+              <?php else: ?>
+                <a class="btn-link" href="<?= BASE_URL ?>/index.php?page=generar_resuelto&id=<?= urlencode($item['colab_id']) ?>">
+                  Generar Resuelto
+                </a>
+                <div class="help-text">Mín. 7, máx. <?= $disp ?> días</div>
+              <?php endif; ?>
             <?php else: ?>
               <span class="help-text">Sin ID</span>
             <?php endif; ?>
@@ -51,3 +66,5 @@
     <?php endif; ?>
   </tbody>
 </table>
+
+

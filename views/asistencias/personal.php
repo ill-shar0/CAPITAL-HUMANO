@@ -58,5 +58,6 @@ $rolLabel = $user['usu_rol'] ?? $user['rol'] ?? '—';
         <?php endforeach; ?>
       <?php endif; ?>
     </tbody>
-  </table>
-</div>
+</table>
+
+

@@ -11,7 +11,7 @@ require_once BASE_PATH . '/services/PdfService.php';
 // GESTIONAR VACACIONES
 // ============================
 if ($page === 'gestionar_vacaciones') {
-    Authz::requireRoles(['administrador', 'recursos_humanos']);
+    Authz::requireRoles(['recursos_humanos']);
 
     $vacaciones = Vacaciones::colaboradoresConVacaciones();
 
@@ -21,51 +21,9 @@ if ($page === 'gestionar_vacaciones') {
     return;
 }
 
-// ============================
-// GENERAR RESUELTO (FORMULARIO)
-// ============================
-if ($page === 'generar_resuelto' && $_SERVER['REQUEST_METHOD'] === 'GET') {
-    Authz::requireRoles(['administrador', 'recursos_humanos']);
-
-    $colabId = $_GET['id'] ?? null;
-    $colaborador = null;
-
-    if ($colabId) {
-        $colaborador = Vacaciones::datosColaborador($colabId);
-    }
-
-    render('vacaciones/generar_resuelto.php', [
-        'colaborador' => $colaborador,
-        'messages' => [],
-        'errors' => []
-    ]);
-    return;
-}
-
-// ============================
-// GENERAR RESUELTO (POST)
-// ============================
-if ($page === 'generar_resuelto' && $_SERVER['REQUEST_METHOD'] === 'POST') {
-    Authz::requireRoles(['administrador', 'recursos_humanos']);
-
-    $errors = [];
-    $messages = [];
-
-    $colabId = $_POST['colab_id'] ?? null;
-
-    // 🔑 OBTENER COLABORADOR
-    $colaborador = $colabId ? Vacaciones::datosColaborador($colabId) : null;
-
-    if (!$colaborador) {
-        $errors[] = 'No se encontró el colaborador para generar el resuelto.';
-        render('vacaciones/generar_resuelto.php', [
-            'colaborador' => null,
-            'messages' => [],
-            'errors' => $errors
-        ]);
-        return;
-    }
-
+// Generar resuelto
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    Authz::requireRoles(['recursos_humanos']);
     $data = [
         'colab_id' => $colabId,
         'nombre'   => $colaborador['colab_primer_nombre'] . ' ' . $colaborador['colab_apellido_paterno'],

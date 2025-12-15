@@ -28,6 +28,7 @@ $confirmAction = $confirmAction ?? null;
       <input type="hidden" name="accion" value="entrada">
       <button class="btn primary" type="submit">Registrar entrada</button>
     </form>
+</div>
 
     <form method="post" class="inline-form">
       <input type="hidden" name="accion" value="salida">

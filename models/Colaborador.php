@@ -7,12 +7,17 @@ class Colaborador
     {
         try {
             $db = get_db();
+            // Generar ID usando UUID_SHORT para poder retornarlo
+            $id = $db->query('SELECT CAST(UUID_SHORT() AS CHAR)')->fetchColumn();
+
             $sql = 'INSERT INTO colaboradores (
+                        colab_id,
                         `colab_primer_nombre`, segundo_nombre, colab_apellido_paterno, colab_apellido_materno,
                         colab_sexo, colab_cedula, colab_fecha_nac, colab_correo, colab_telefono, colab_celular,
                         colab_direccion, colab_foto_perfil, colab_car_sueldo, colab_car_cargo,
                         colab_estado_colaborador, colab_fecha_creacion, colab_ultima_actualizacion
                     ) VALUES (
+                        :id,
                         :primer_nombre, :segundo_nombre, :apellido_paterno, :apellido_materno,
                         :sexo, :cedula, :fecha_nac, :correo, :telefono, :celular,
                         :direccion, :foto, :sueldo, :cargo,
@@ -21,6 +26,7 @@ class Colaborador
             $stmt = $db->prepare($sql);
             $now = date('Y-m-d H:i:s');
             $stmt->execute([
+                'id' => $id,
                 'primer_nombre' => $data['primer_nombre'] ?? '',
                 'segundo_nombre' => $data['segundo_nombre'] ?? '',
                 'apellido_paterno' => $data['apellido_paterno'] ?? '',
@@ -38,7 +44,7 @@ class Colaborador
                 'estado' => $data['estado_colaborador'] ?? 'Activo',
                 'fecha' => $now,
             ]);
-            return $db->lastInsertId();
+            return $id;
         } catch (Throwable $e) {
             return null;
         }
@@ -216,6 +222,28 @@ class Colaborador
                 WHERE colab_id = :id
                 LIMIT 1');
             $stmt->execute(['id' => $id]);
+            $row = $stmt->fetch();
+            return $row ?: null;
+        } catch (Throwable $e) {
+            return null;
+        }
+    }
+
+    public static function findByCedula(string $cedula): ?array
+    {
+        try {
+            $db = get_db();
+            $stmt = $db->prepare('SELECT 
+                    colab_id,
+                    `colab_primer_nombre` AS primer_nombre,
+                    colab_apellido_paterno AS apellido_paterno,
+                    colab_apellido_materno AS apellido_materno,
+                    colab_cedula AS cedula,
+                    colab_estado_colaborador AS estado_colaborador
+                FROM colaboradores
+                WHERE colab_cedula = :cedula
+                LIMIT 1');
+            $stmt->execute(['cedula' => $cedula]);
             $row = $stmt->fetch();
             return $row ?: null;
         } catch (Throwable $e) {

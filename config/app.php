@@ -22,7 +22,8 @@ function render(string $view, array $data = []): void
 
     ob_start();
     include $viewPath;
-    $content = ob_get_clean();
+    $content = ob_get_contents();
+    ob_end_clean();
 
     include BASE_PATH . '/views/layouts/main.php';
 }
