@@ -7,6 +7,8 @@ require_once BASE_PATH . '/models/User.php'; // modelo usuario
 require_once BASE_PATH . '/services/PasswordService.php'; // passwords
 require_once BASE_PATH . '/services/AuditService.php'; // auditoría
 require_once BASE_PATH . '/helpers/redirect.php'; // helper redirect
+require_once BASE_PATH . '/helpers/sanitize.php'; // sanitización
+require_once BASE_PATH . '/helpers/validator.php'; // validación
 
 Authz::requireRoles(['administrador', 'recursos_humanos']); // solo admin/RRHH
 
@@ -62,32 +64,61 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     if ($action === 'create_colaborador') { // crear colaborador
         $foto = handle_photo_upload(); // procesa foto
-        $estado = trim($_POST['estado_colaborador'] ?? 'Activo');
+        $estado = s_str($_POST['estado_colaborador'] ?? 'Activo');
         if (!in_array($estado, $allowedStates, true)) {
             $errors[] = 'Estado inválido.';
             $estado = 'Activo';
         }
         $data = [
-            'primer_nombre' => trim($_POST['primer_nombre'] ?? ''),
-            'segundo_nombre' => trim($_POST['segundo_nombre'] ?? ''),
-            'apellido_paterno' => trim($_POST['apellido_paterno'] ?? ''),
-            'apellido_materno' => trim($_POST['apellido_materno'] ?? ''),
-            'sexo' => trim($_POST['sexo'] ?? ''),
-            'cedula' => trim($_POST['cedula'] ?? ''),
-            'fecha_nac' => trim($_POST['fecha_nac'] ?? ''),
-            'correo' => trim($_POST['correo'] ?? ''),
-            'telefono' => trim($_POST['telefono'] ?? ''),
-            'celular' => trim($_POST['celular'] ?? ''),
-            'direccion' => trim($_POST['direccion'] ?? ''),
+            'primer_nombre' => s_str($_POST['primer_nombre'] ?? '', 100),
+            'segundo_nombre' => s_str($_POST['segundo_nombre'] ?? '', 100),
+            'apellido_paterno' => s_str($_POST['apellido_paterno'] ?? '', 100),
+            'apellido_materno' => s_str($_POST['apellido_materno'] ?? '', 100),
+            'sexo' => s_str($_POST['sexo'] ?? '', 10),
+            'cedula' => s_numtxt($_POST['cedula'] ?? '', 50),
+            'fecha_nac' => s_date($_POST['fecha_nac'] ?? ''),
+            'correo' => s_email($_POST['correo'] ?? ''),
+            'telefono' => s_numtxt($_POST['telefono'] ?? ''),
+            'celular' => s_numtxt($_POST['celular'] ?? ''),
+            'direccion' => s_str($_POST['direccion'] ?? '', 200),
             'foto_perfil' => $foto,
-            'car_sueldo' => trim($_POST['car_sueldo'] ?? ''),
-            'car_cargo' => trim($_POST['car_cargo'] ?? ''),
+            'car_sueldo' => s_str($_POST['car_sueldo'] ?? '', 50),
+            'car_cargo' => s_str($_POST['car_cargo'] ?? '', 100),
             'estado_colaborador' => $estado,
         ];
 
-        if ($data['primer_nombre'] === '' || $data['apellido_paterno'] === '') { // validación mínima
-            $errors[] = 'Primer nombre y apellido paterno son obligatorios.';
-        } else {
+        $errors = array_merge($errors, v_required($data, [
+            'primer_nombre' => 'Primer nombre',
+            'apellido_paterno' => 'Apellido paterno',
+            'segundo_nombre' => 'Segundo nombre',
+            'apellido_materno' => 'Apellido materno',
+            'sexo' => 'Sexo',
+            'cedula' => 'Cédula',
+            'fecha_nac' => 'Fecha de nacimiento',
+            'correo' => 'Correo',
+            'telefono' => 'Teléfono',
+            'celular' => 'Celular',
+            'direccion' => 'Dirección',
+            'car_sueldo' => 'Sueldo',
+            'car_cargo' => 'Cargo',
+            'estado_colaborador' => 'Estado',
+        ]));
+        $errors = array_merge($errors,
+            v_alpha($data['primer_nombre'], 'Primer nombre'),
+            v_alpha($data['segundo_nombre'], 'Segundo nombre'),
+            v_alpha($data['apellido_paterno'], 'Apellido paterno'),
+            v_alpha($data['apellido_materno'], 'Apellido materno'),
+            v_email($data['correo'], 'Correo'),
+            v_pattern($data['cedula'], 'Cédula', '/^[0-9-]+$/', 'solo dígitos y guiones'),
+            v_pattern($data['telefono'], 'Teléfono', '/^[0-9-]+$/', 'solo dígitos y guiones'),
+            v_pattern($data['celular'], 'Celular', '/^[0-9-]+$/', 'solo dígitos y guiones'),
+            v_pattern($data['car_sueldo'], 'Sueldo', '/^[0-9]+(\.[0-9]{1,2})?$/', 'solo números y hasta 2 decimales'),
+            v_alpha($data['car_cargo'], 'Cargo'),
+            v_in($data['sexo'], ['M', 'F'], 'Sexo'),
+            v_in($estado, $allowedStates, 'Estado')
+        );
+
+        if (empty($errors)) {
             $newId = Colaborador::create($data);
             if ($newId) {
                 $messages[] = 'Colaborador creado.';
@@ -116,28 +147,58 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $colabId = $_POST['colab_id'] ?? '';
         if ($colabId) {
             $foto = handle_photo_upload();
-            $estado = trim($_POST['estado_colaborador'] ?? 'Activo');
+            $estado = s_str($_POST['estado_colaborador'] ?? 'Activo');
             if (!in_array($estado, $allowedStates, true)) {
                 $errors[] = 'Estado inválido.';
                 $estado = 'Activo';
             }
             $data = [
-                'primer_nombre' => trim($_POST['primer_nombre'] ?? ''),
-                'segundo_nombre' => trim($_POST['segundo_nombre'] ?? ''),
-                'apellido_paterno' => trim($_POST['apellido_paterno'] ?? ''),
-                'apellido_materno' => trim($_POST['apellido_materno'] ?? ''),
-                'sexo' => trim($_POST['sexo'] ?? ''),
-                'cedula' => trim($_POST['cedula'] ?? ''),
-                'fecha_nac' => trim($_POST['fecha_nac'] ?? ''),
-                'correo' => trim($_POST['correo'] ?? ''),
-                'telefono' => trim($_POST['telefono'] ?? ''),
-                'celular' => trim($_POST['celular'] ?? ''),
-                'direccion' => trim($_POST['direccion'] ?? ''),
+                'primer_nombre' => s_str($_POST['primer_nombre'] ?? '', 100),
+                'segundo_nombre' => s_str($_POST['segundo_nombre'] ?? '', 100),
+                'apellido_paterno' => s_str($_POST['apellido_paterno'] ?? '', 100),
+                'apellido_materno' => s_str($_POST['apellido_materno'] ?? '', 100),
+                'sexo' => s_str($_POST['sexo'] ?? '', 10),
+                'cedula' => s_numtxt($_POST['cedula'] ?? '', 50),
+                'fecha_nac' => s_date($_POST['fecha_nac'] ?? ''),
+                'correo' => s_email($_POST['correo'] ?? ''),
+                'telefono' => s_numtxt($_POST['telefono'] ?? ''),
+                'celular' => s_numtxt($_POST['celular'] ?? ''),
+                'direccion' => s_str($_POST['direccion'] ?? '', 200),
                 'foto_perfil' => $foto ?: (trim($_POST['foto_actual'] ?? '')),
-                'car_sueldo' => trim($_POST['car_sueldo'] ?? ''),
-                'car_cargo' => trim($_POST['car_cargo'] ?? ''),
+                'car_sueldo' => s_str($_POST['car_sueldo'] ?? '', 50),
+                'car_cargo' => s_str($_POST['car_cargo'] ?? '', 100),
                 'estado_colaborador' => $estado,
             ];
+            $errors = array_merge($errors, v_required($data, [
+                'primer_nombre' => 'Primer nombre',
+                'apellido_paterno' => 'Apellido paterno',
+                'segundo_nombre' => 'Segundo nombre',
+                'apellido_materno' => 'Apellido materno',
+                'sexo' => 'Sexo',
+                'cedula' => 'Cédula',
+                'fecha_nac' => 'Fecha de nacimiento',
+                'correo' => 'Correo',
+                'telefono' => 'Teléfono',
+                'celular' => 'Celular',
+                'direccion' => 'Dirección',
+                'car_sueldo' => 'Sueldo',
+                'car_cargo' => 'Cargo',
+                'estado_colaborador' => 'Estado',
+            ]));
+            $errors = array_merge($errors,
+                v_alpha($data['primer_nombre'], 'Primer nombre'),
+                v_alpha($data['segundo_nombre'], 'Segundo nombre'),
+                v_alpha($data['apellido_paterno'], 'Apellido paterno'),
+                v_alpha($data['apellido_materno'], 'Apellido materno'),
+                v_email($data['correo'], 'Correo'),
+                v_pattern($data['cedula'], 'Cédula', '/^[0-9-]+$/', 'solo dígitos y guiones'),
+                v_pattern($data['telefono'], 'Teléfono', '/^[0-9-]+$/', 'solo dígitos y guiones'),
+                v_pattern($data['celular'], 'Celular', '/^[0-9-]+$/', 'solo dígitos y guiones'),
+                v_pattern($data['car_sueldo'], 'Sueldo', '/^[0-9]+(\.[0-9]{1,2})?$/', 'solo números y hasta 2 decimales'),
+                v_alpha($data['car_cargo'], 'Cargo'),
+                v_in($data['sexo'], ['M', 'F'], 'Sexo'),
+                v_in($estado, $allowedStates, 'Estado')
+            );
             if (Colaborador::updateColab($colabId, $data)) {
                 $messages[] = 'Colaborador actualizado.';
                 AuditService::log($actorId, 'colaborador', $colabId, 'Actualizó colaborador');
@@ -200,8 +261,10 @@ if ($page === 'ver_historial_cargos') { // historial de cargos
 }
 
 $colaboradores = Colaborador::all();
+$cargos = Cargo::all();
 render('gestionar_colaboradores/index.php', [
     'colaboradores' => $colaboradores,
+    'cargos' => $cargos,
     'messages' => $messages,
     'errors' => $errors,
 ]);

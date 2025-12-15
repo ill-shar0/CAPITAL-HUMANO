@@ -4,6 +4,8 @@ require_once BASE_PATH . '/services/Authz.php';
 require_once BASE_PATH . '/models/Cargo.php';
 require_once BASE_PATH . '/models/Colaborador.php';
 require_once BASE_PATH . '/services/AuditService.php';
+require_once BASE_PATH . '/helpers/sanitize.php';
+require_once BASE_PATH . '/helpers/validator.php';
 
 Authz::requireRoles(['administrador', 'recursos_humanos']); // acceso restringido
 
@@ -17,14 +19,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $actorId = $currentUser['user_id'] ?? ''; // para auditoría
 
     if ($action === 'create_cargo') { // crear nuevo cargo
-        $nombre = trim($_POST['nombre_cargo'] ?? '');
-        $departamento = trim($_POST['departamento_cargo'] ?? '');
-        $sueldo = trim($_POST['sueldo_cargo'] ?? '');
-        $ocupacion = trim($_POST['ocupacion'] ?? '');
-        if ($nombre === '') {
-            $errors[] = 'El nombre del cargo es obligatorio.';
-        } else {
-            $newId = Cargo::create($nombre, $departamento, $sueldo, $ocupacion);
+        $nombre = s_str($_POST['nombre_cargo'] ?? '', 150);
+        $departamento = s_str($_POST['departamento_cargo'] ?? '', 150);
+        $ocupacion = s_str($_POST['ocupacion'] ?? '', 255);
+
+        $errors = array_merge($errors,
+            v_required(['nombre' => $nombre], ['nombre' => 'Nombre del cargo']),
+            v_alpha($nombre, 'Nombre del cargo'),
+            v_alpha($departamento, 'Departamento', true)
+        );
+
+        if (empty($errors)) {
+            $newId = Cargo::create($nombre, $departamento, '', $ocupacion);
             if ($newId !== null) {
                 $messages[] = 'Cargo creado correctamente.';
                 AuditService::log($actorId, 'cargo', $newId, "Creó cargo {$nombre}");
@@ -36,19 +42,26 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     if ($action === 'update_cargo') { // actualizar cargo
         $id = $_POST['cargo_id'] ?? '';
-        $nombre = trim($_POST['nombre_cargo'] ?? '');
-        $departamento = trim($_POST['departamento_cargo'] ?? '');
-        $sueldo = trim($_POST['sueldo_cargo'] ?? '');
-        $ocupacion = trim($_POST['ocupacion'] ?? '');
-        if ($id && $nombre !== '') {
-            if (Cargo::updateCargo($id, $nombre, $departamento, $sueldo, $ocupacion)) {
+        $nombre = s_str($_POST['nombre_cargo'] ?? '', 150);
+        $departamento = s_str($_POST['departamento_cargo'] ?? '', 150);
+        $ocupacion = s_str($_POST['ocupacion'] ?? '', 255);
+
+        $errors = array_merge($errors,
+            v_required(['id' => $id, 'nombre' => $nombre], [
+                'id' => 'ID de cargo',
+                'nombre' => 'Nombre del cargo'
+            ]),
+            v_alpha($nombre, 'Nombre del cargo'),
+            v_alpha($departamento, 'Departamento', true)
+        );
+
+        if (empty($errors)) {
+            if (Cargo::updateCargo($id, $nombre, $departamento, '', $ocupacion)) {
                 $messages[] = 'Cargo actualizado.';
                 AuditService::log($actorId, 'cargo', $id, "Actualizó cargo {$nombre}");
             } else {
                 $errors[] = 'No se pudo actualizar el cargo.';
             }
-        } else {
-            $errors[] = 'Faltan datos para actualizar el cargo.';
         }
     }
 

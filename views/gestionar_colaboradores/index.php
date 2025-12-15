@@ -20,33 +20,44 @@
     <form class="form-card" method="post" enctype="multipart/form-data">
         <input type="hidden" name="action" value="create_colaborador">
         <label>Primer nombre</label>
-        <input type="text" name="primer_nombre" required>
+        <input type="text" name="primer_nombre" required pattern="^[A-Za-z\s]+$" title="Solo letras y espacios">
         <label>Segundo nombre</label>
-        <input type="text" name="segundo_nombre">
+        <input type="text" name="segundo_nombre" required pattern="^[A-Za-z\s]+$" title="Solo letras y espacios">
         <label>Apellido paterno</label>
-        <input type="text" name="apellido_paterno" required>
+        <input type="text" name="apellido_paterno" required pattern="^[A-Za-z\s]+$" title="Solo letras y espacios">
         <label>Apellido materno</label>
-        <input type="text" name="apellido_materno">
+        <input type="text" name="apellido_materno" required pattern="^[A-Za-z\s]+$" title="Solo letras y espacios">
         <label>Sexo</label>
-        <input type="text" name="sexo">
+        <select name="sexo" required>
+            <option value="">Seleccione</option>
+            <option value="M">M</option>
+            <option value="F">F</option>
+        </select>
         <label>Cédula</label>
-        <input type="text" name="cedula">
+        <input type="text" name="cedula" required>
         <label>Fecha de nacimiento</label>
-        <input type="date" name="fecha_nac">
+        <input type="date" name="fecha_nac" required>
         <label>Correo</label>
-        <input type="email" name="correo">
+        <input type="email" name="correo" required>
         <label>Teléfono</label>
-        <input type="text" name="telefono">
+        <input type="text" name="telefono" required>
         <label>Celular</label>
-        <input type="text" name="celular">
+        <input type="text" name="celular" required>
         <label>Dirección</label>
-        <input type="text" name="direccion">
+        <input type="text" name="direccion" required>
         <label>Foto perfil</label>
         <input type="file" name="foto_perfil" accept="image/png,image/jpeg">
         <label>Sueldo</label>
-        <input type="text" name="car_sueldo">
-        <label>Cargo (texto)</label>
-        <input type="text" name="car_cargo">
+        <input type="text" name="car_sueldo" required>
+        <label>Cargo</label>
+        <select name="car_cargo" required>
+            <option value="">Seleccione cargo</option>
+            <?php foreach (($cargos ?? []) as $cargo): ?>
+                <option value="<?= htmlspecialchars($cargo['nombre_cargo'] ?? '') ?>">
+                    <?= htmlspecialchars($cargo['nombre_cargo'] ?? '') ?>
+                </option>
+            <?php endforeach; ?>
+        </select>
         <label>¿Crear usuario colaborador?</label>
         <select name="crear_usuario">
             <option value="no">No</option>

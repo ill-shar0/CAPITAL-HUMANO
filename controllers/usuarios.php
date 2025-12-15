@@ -5,6 +5,8 @@ require_once BASE_PATH . '/models/User.php';
 require_once BASE_PATH . '/models/Colaborador.php';
 require_once BASE_PATH . '/services/PasswordService.php';
 require_once BASE_PATH . '/services/AuditService.php';
+require_once BASE_PATH . '/helpers/sanitize.php';
+require_once BASE_PATH . '/helpers/validator.php';
 
 Authz::requireRoles(['administrador', 'recursos_humanos']); // solo admin/RRHH
 
@@ -37,14 +39,35 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
   $action = $_POST['action'] ?? ''; // acción enviada
 
   if ($action === 'create_user') { // alta usuario
-    $cedula = trim($_POST['cedula'] ?? '');
-    $primerNombre = trim($_POST['primer_nombre'] ?? '');
-    $apellidoPaterno = trim($_POST['apellido_paterno'] ?? '');
-    $rol = trim($_POST['rol'] ?? 'colaborador');
+    $cedula = s_numtxt($_POST['cedula'] ?? '', 50);
+    $primerNombre = s_str($_POST['primer_nombre'] ?? '', 100);
+    $apellidoPaterno = s_str($_POST['apellido_paterno'] ?? '', 100);
+    $rol = s_str($_POST['rol'] ?? 'colaborador', 30);
     $estado = '1';
 
-    if ($cedula === '' || $primerNombre === '' || $apellidoPaterno === '' || $rol === '') {
-      flash_error('Cédula, nombre, apellido y rol son obligatorios.');
+    $allowedRoles = ['administrador', 'recursos_humanos', 'colaborador'];
+
+    $localErrors = [];
+    $localErrors = array_merge($localErrors, v_required([
+      'cedula' => $cedula,
+      'primerNombre' => $primerNombre,
+      'apellidoPaterno' => $apellidoPaterno,
+      'rol' => $rol,
+    ], [
+      'cedula' => 'Cédula',
+      'primerNombre' => 'Nombre',
+      'apellidoPaterno' => 'Apellido',
+      'rol' => 'Rol',
+    ]));
+    $localErrors = array_merge($localErrors,
+      v_alpha($primerNombre, 'Nombre'),
+      v_alpha($apellidoPaterno, 'Apellido'),
+      v_pattern($cedula, 'Cédula', '/^[0-9-]+$/', 'solo dígitos y guiones'),
+      v_in($rol, $allowedRoles, 'Rol')
+    );
+
+    if (!empty($localErrors)) {
+      foreach ($localErrors as $err) flash_error($err);
     } else {
       // Buscar colaborador por cédula
       $colab = Colaborador::findByCedula($cedula);
@@ -94,10 +117,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
   if ($action === 'update_role_state') { // cambiar rol/estado
     $userId = $_POST['user_id'] ?? '';
-    $rol = trim($_POST['rol'] ?? '');
-    $estado = trim($_POST['estado'] ?? '1');
+    $rol = s_str($_POST['rol'] ?? '', 30);
+    $estado = s_str($_POST['estado'] ?? '1', 1);
+    $allowedRoles = ['administrador', 'recursos_humanos', 'colaborador'];
 
-    if ($userId && $rol !== '') {
+    $localErrors = [];
+    if (!$userId) $localErrors[] = 'Falta user_id.';
+    $localErrors = array_merge($localErrors, v_in($rol, $allowedRoles, 'Rol'));
+    if (!in_array($estado, ['0', '1'], true)) {
+      $localErrors[] = 'Estado inválido.';
+    }
+
+    if (empty($localErrors)) {
       if (User::updateRoleState($userId, $rol, $estado)) {
         flash_success('Rol/estado actualizados.');
         AuditService::log($actorId, 'usuario', $userId, "Actualizó rol/estado a {$rol}/{$estado}");
@@ -105,7 +136,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         flash_error('No se pudo actualizar rol/estado.');
       }
     } else {
-      flash_error('Faltan datos para actualizar rol/estado.');
+      foreach ($localErrors as $err) flash_error($err);
     }
   }
 
