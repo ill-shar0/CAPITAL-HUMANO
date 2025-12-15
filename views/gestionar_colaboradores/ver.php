@@ -44,6 +44,20 @@
         </div>
     </div>
 
+    <div class="card" style="margin-top:16px;">
+        <h3>Foto de perfil</h3>
+        <?php if (!empty($colaborador['foto_perfil'])): ?>
+            <?php $fotoPath = ltrim($colaborador['foto_perfil'], '/'); ?>
+            <a href="<?= BASE_URL ?>/<?= htmlspecialchars($fotoPath) ?>" target="_blank">
+                <img src="<?= BASE_URL ?>/<?= htmlspecialchars($fotoPath) ?>"
+                     alt="Foto de perfil"
+                     style="width:120px;height:120px;object-fit:cover;border-radius:8px;">
+            </a>
+        <?php else: ?>
+            <p class="help-text">Sin foto de perfil.</p>
+        <?php endif; ?>
+    </div>
+
     <div class="card">
         <h3>Sueldo y cargo activo</h3>
         <p>Sueldo actual: <?= htmlspecialchars($colaborador['car_sueldo'] ?? 'No definido') ?></p>
