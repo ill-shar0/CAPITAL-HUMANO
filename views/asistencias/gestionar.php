@@ -12,14 +12,19 @@ ob_start();
     <form method="GET" class="search-bar" action="<?= BASE_URL ?>/index.php">
       <input type="hidden" name="page" value="gestionar_asistencias">
 
-      <input type="text" name="q" placeholder="Buscar colaborador"
-             value="<?= htmlspecialchars($busqueda) ?>">
+      <input
+        type="text"
+        name="q"
+        placeholder="Buscar colaborador"
+        value="<?= htmlspecialchars($busqueda) ?>"
+      >
 
       <button class="btn" type="submit">Buscar</button>
     </form>
 
     <p class="help-text">
-      Ordenado de más reciente a más antiguo. Solo RRHH/Admin puede editar/eliminar.
+      Ordenado de más reciente a más antiguo.
+      Solo RRHH/Admin puede editar o eliminar.
     </p>
   </div>
 
@@ -39,28 +44,42 @@ ob_start();
         <?php if (!empty($historial)): ?>
           <?php foreach ($historial as $item): ?>
             <tr>
-              <td><?= htmlspecialchars(($item['colab_primer_nombre'] ?? '') . ' ' . ($item['colab_apellido_paterno'] ?? '')) ?></td>
+              <td>
+                <?= htmlspecialchars(
+                  ($item['colab_primer_nombre'] ?? '') . ' ' .
+                  ($item['colab_apellido_paterno'] ?? '')
+                ) ?>
+              </td>
               <td><?= htmlspecialchars($item['asis_fecha'] ?? '') ?></td>
               <td><?= htmlspecialchars($item['asis_hora_entrada'] ?? '') ?></td>
               <td><?= htmlspecialchars($item['asis_hora_salida'] ?? '-') ?></td>
               <td class="actions">
-                <a class="btn-link"
-                   href="<?= BASE_URL ?>/index.php?page=editar_asistencia&id=<?= urlencode($item['asis_id'] ?? '') ?>">
+                <a
+                  class="btn-link"
+                  href="<?= BASE_URL ?>/index.php?page=editar_asistencia&id=<?= urlencode($item['asis_id']) ?>"
+                >
                   Editar
                 </a>
-                <a class="btn-link danger"
-                   href="<?= BASE_URL ?>/index.php?page=eliminar_asistencia&id=<?= urlencode($item['asis_id'] ?? '') ?>"
-                   onclick="return confirm('¿Eliminar esta asistencia?');">
+
+                <a
+                  class="btn-link danger"
+                  href="<?= BASE_URL ?>/index.php?page=eliminar_asistencia&id=<?= urlencode($item['asis_id']) ?>"
+                  onclick="return confirm('¿Eliminar esta asistencia?');"
+                >
                   Eliminar
                 </a>
               </td>
             </tr>
           <?php endforeach; ?>
         <?php else: ?>
-          <tr><td colspan="5">Sin asistencias cargadas.</td></tr>
+          <tr>
+            <td colspan="5">Sin asistencias cargadas.</td>
+          </tr>
         <?php endif; ?>
       </tbody>
     </table>
   </div>
 
 </div>
+
+<?php
