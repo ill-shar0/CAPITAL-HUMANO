@@ -186,6 +186,7 @@ class Colaborador
                     colab_sexo AS sexo,
                     colab_cedula AS cedula,
                     colab_correo AS correo,
+                    colab_foto_perfil AS foto_perfil,
                     colab_estado_colaborador AS estado_colaborador,
                     colab_fecha_creacion AS fecha_creacion,
                     colab_ultima_actualizacion AS ultima_actualizacion,

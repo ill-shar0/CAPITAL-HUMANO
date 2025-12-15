@@ -2,7 +2,17 @@
 <div class="page-header">
     <h1>Detalle de colaborador</h1>
     <?php if ($colaborador): ?>
-        <p><?= htmlspecialchars($colaborador['primer_nombre'] . ' ' . $colaborador['apellido_paterno']) ?></p>
+        <div style="display:flex;align-items:center;gap:12px;">
+            <?php if (!empty($colaborador['foto_perfil'])): ?>
+                <?php $fotoPath = ltrim($colaborador['foto_perfil'], '/'); ?>
+                <img src="<?= BASE_URL ?>/<?= htmlspecialchars($fotoPath) ?>"
+                     alt="Foto de perfil"
+                     style="width:48px;height:48px;object-fit:cover;border-radius:50%;border:1px solid #ddd;">
+            <?php else: ?>
+                <div style="width:48px;height:48px;border-radius:50%;border:1px solid #ddd;display:flex;align-items:center;justify-content:center;font-size:12px;color:#666;">Sin foto</div>
+            <?php endif; ?>
+            <p style="margin:0;"><?= htmlspecialchars($colaborador['primer_nombre'] . ' ' . $colaborador['apellido_paterno']) ?></p>
+        </div>
     <?php else: ?>
         <p>No se encontró colaborador.</p>
     <?php endif; ?>
