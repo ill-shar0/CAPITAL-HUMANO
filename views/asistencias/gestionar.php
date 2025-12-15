@@ -1,16 +1,11 @@
-<<<<<<< HEAD
 <?php
 $historial = is_array($historial ?? null) ? $historial : [];
 $busqueda = $busqueda ?? '';
-ob_start();
 ?>
 
 <div class="asistencias-page">
 
   <div class="page-header">
-=======
-<div class="page-header">
->>>>>>> 91616df4df6ad8d1c4e7185da467ba67478297ff
     <h1>Gestionar asistencias</h1>
 
     <form method="GET" class="search-bar" action="<?= BASE_URL ?>/index.php">
@@ -38,4 +33,41 @@ ob_start();
           <th>Acciones</th>
         </tr>
       </thead>
+      <tbody>
+        <?php if (empty($historial)): ?>
+          <tr>
+            <td colspan="5" style="text-align:center;">No hay asistencias registradas</td>
+          </tr>
+        <?php else: ?>
+          <?php foreach ($historial as $h): ?>
+            <?php
+              $nombre = trim(($h['colab_primer_nombre'] ?? '') . ' ' . ($h['colab_apellido_paterno'] ?? ''));
+              $fecha = $h['asis_fecha'] ?? '—';
+              $entrada = $h['asis_hora_entrada'] ?? '—';
+              $salida = $h['asis_hora_salida'] ?? '—';
+              $id = $h['asis_id'] ?? '';
+            ?>
+            <tr>
+              <td><?= htmlspecialchars($nombre ?: '—') ?></td>
+              <td><?= htmlspecialchars($fecha) ?></td>
+              <td><?= htmlspecialchars($entrada) ?></td>
+              <td><?= htmlspecialchars($salida) ?></td>
+              <td class="actions">
+                <?php if (!empty($id)): ?>
+                  <a class="btn-link" href="<?= BASE_URL ?>/index.php?page=editar_asistencia&id=<?= urlencode($id) ?>">Editar</a>
+                  <form method="post" action="<?= BASE_URL ?>/index.php?page=eliminar_asistencia" class="inline-form" style="display:inline;" onsubmit="return confirm('¿Eliminar esta asistencia?');">
+                    <input type="hidden" name="id" value="<?= htmlspecialchars($id) ?>">
+                    <button class="btn-link danger" type="submit">Eliminar</button>
+                  </form>
+                <?php else: ?>
+                  —
+                <?php endif; ?>
+              </td>
+            </tr>
+          <?php endforeach; ?>
+        <?php endif; ?>
+      </tbody>
+    </table>
+  </div>
+</div>
 
