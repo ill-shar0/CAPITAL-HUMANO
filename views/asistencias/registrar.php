@@ -23,12 +23,11 @@ $confirmAction = $confirmAction ?? null;
 
 <!-- ✅ BOTONES (UN SOLO BLOQUE) -->
 <div class="card">
-  <div class="actions-row asistencia-actions">
+  <div class="actions-row asistencia-actions" style="display:flex;gap:12px;align-items:center;flex-wrap:wrap;margin-bottom:8px;">
     <form method="post" class="inline-form">
       <input type="hidden" name="accion" value="entrada">
       <button class="btn primary" type="submit">Registrar entrada</button>
     </form>
-</div>
 
     <form method="post" class="inline-form">
       <input type="hidden" name="accion" value="salida">
