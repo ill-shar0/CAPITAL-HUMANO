@@ -843,10 +843,3 @@ body {
     }
 }
 
-.stats-card {
-    height: 360px;
-}
-
-.stats-card canvas {
-    max-height: 240px !important;
-}
