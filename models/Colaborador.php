@@ -8,7 +8,7 @@ class Colaborador
         try {
             $db = get_db();
             $sql = 'INSERT INTO colaboradores (
-                        `colab_ primer_nombre`, segundo_nombre, colab_apellido_paterno, colab_apellido_materno,
+                        `colab_primer_nombre`, segundo_nombre, colab_apellido_paterno, colab_apellido_materno,
                         colab_sexo, colab_cedula, colab_fecha_nac, colab_correo, colab_telefono, colab_celular,
                         colab_direccion, colab_foto_perfil, colab_car_sueldo, colab_car_cargo,
                         colab_estado_colaborador, colab_fecha_creacion, colab_ultima_actualizacion
@@ -49,7 +49,7 @@ class Colaborador
         try {
             $db = get_db();
             $sql = 'UPDATE colaboradores SET
-                        `colab_ primer_nombre` = :primer_nombre,
+                        `colab_primer_nombre` = :primer_nombre,
                         segundo_nombre = :segundo_nombre,
                         colab_apellido_paterno = :apellido_paterno,
                         colab_apellido_materno = :apellido_materno,
@@ -169,7 +169,7 @@ class Colaborador
             $db = get_db();
             $stmt = $db->query('SELECT 
                     colab_id,
-                    `colab_ primer_nombre` AS primer_nombre,
+                    `colab_primer_nombre` AS primer_nombre,
                     segundo_nombre,
                     colab_apellido_paterno AS apellido_paterno,
                     colab_apellido_materno AS apellido_materno,
@@ -195,7 +195,7 @@ class Colaborador
             $db = get_db();
             $stmt = $db->prepare('SELECT 
                     colab_id,
-                    `colab_ primer_nombre` AS primer_nombre,
+                    `colab_primer_nombre` AS primer_nombre,
                     segundo_nombre,
                     colab_apellido_paterno AS apellido_paterno,
                     colab_apellido_materno AS apellido_materno,
@@ -229,7 +229,7 @@ class Colaborador
             $db = get_db();
             $sql = 'SELECT 
                         c.colab_id,
-                        c.`colab_ primer_nombre` AS primer_nombre,
+                        c.`colab_primer_nombre` AS primer_nombre,
                         c.colab_apellido_paterno AS apellido_paterno,
                         cc.col_carg_periodo AS periodo
                     FROM colaboradores c
@@ -256,7 +256,7 @@ class Colaborador
         }
 
         if (!empty($filtros['nombre'])) {
-            $condiciones[] = '(`colab_ primer_nombre` LIKE :nombre OR segundo_nombre LIKE :nombre)';
+            $condiciones[] = '(`colab_primer_nombre` LIKE :nombre OR segundo_nombre LIKE :nombre)';
             $params['nombre'] = '%' . $filtros['nombre'] . '%';
         }
 
@@ -284,7 +284,7 @@ class Colaborador
 
         $sql = "SELECT 
                     colab_id,
-                    `colab_ primer_nombre` AS primer_nombre,
+                    `colab_primer_nombre` AS primer_nombre,
                     colab_apellido_paterno AS apellido_paterno,
                     colab_sexo AS sexo,
                     colab_car_sueldo AS car_sueldo
@@ -322,7 +322,7 @@ public static function contarParaReporte(array $filtros): int
         }
 
         if (!empty($filtros['nombre'])) {
-            $condiciones[] = '(`colab_ primer_nombre` LIKE :nombre OR segundo_nombre LIKE :nombre)';
+            $condiciones[] = '(`colab_primer_nombre` LIKE :nombre OR segundo_nombre LIKE :nombre)';
             $params['nombre'] = '%' . $filtros['nombre'] . '%';
         }
 
