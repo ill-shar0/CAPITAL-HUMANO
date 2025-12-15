@@ -1005,3 +1005,156 @@ body {
     gap: 10px;
     margin-top: 16px;
 }
+
+/* ==========================================
+   ASISTENCIAS – GESTIONAR (ADMIN / RRHH)
+========================================== */
+
+/* Contenedor general */
+.asistencias-page {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+/* Header */
+.asistencias-page .page-header {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 14px;
+  align-items: center;
+  padding-bottom: 6px;
+}
+
+/* En móvil el header se apila */
+@media (max-width: 720px) {
+  .asistencias-page .page-header {
+    grid-template-columns: 1fr;
+    align-items: stretch;
+  }
+}
+
+/* Texto de ayuda */
+.asistencias-page .help-text {
+  grid-column: 1 / -1;
+  font-size: 13px;
+  color: #6b7280;
+}
+
+/* BUSCADOR */
+
+.asistencias-page .search-bar {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.asistencias-page .search-bar input {
+  width: 240px;
+  padding: 8px 12px;
+  border-radius: 999px;              /* 🔵 más suave */
+  border: 1px solid #d1d5db;
+  font-size: 14px;
+  background: #ffffff;
+}
+
+.asistencias-page .search-bar input:focus {
+  outline: none;
+  border-color: #2563eb;
+  box-shadow: 0 0 0 3px rgba(37,99,235,.15);
+}
+
+.asistencias-page .search-bar button {
+  padding: 8px 16px;
+  border-radius: 999px;
+  font-size: 14px;
+}
+
+/* CARD DE TABLA */
+
+.asistencias-page .card {
+  padding: 0;
+  overflow: hidden;
+  border-radius: 12px;
+}
+
+/* TABLA */
+
+.asistencias-page .table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+/* Encabezados */
+.asistencias-page .table thead th {
+  background: #f9fafb;
+  font-size: 12px;
+  font-weight: 700;
+  color: #374151;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  padding: 12px 14px;
+}
+
+/* Celdas */
+.asistencias-page .table tbody td {
+  padding: 12px 14px;
+  font-size: 14px;
+  color: #111827;
+  border-top: 1px solid #e5e7eb;
+}
+
+/* Hover de fila */
+.asistencias-page .table tbody tr:hover {
+  background: #f8fafc;
+}
+
+/*  ACCIONES */
+
+.asistencias-page .table td.actions {
+  text-align: right;
+  white-space: nowrap;
+}
+
+/* Links */
+.asistencias-page .btn-link {
+  font-size: 13px;
+  font-weight: 600;
+  color: #2563eb;
+}
+
+.asistencias-page .btn-link.danger {
+  color: #dc2626;
+}
+
+/* Separación visual sutil */
+.asistencias-page .btn-link + .btn-link {
+  margin-left: 12px;
+}
+
+/* ESTADO VACÍO */
+
+.asistencias-page .table td[colspan] {
+  padding: 28px;
+  text-align: center;
+  color: #6b7280;
+  font-style: italic;
+}
+
+/*  RESPONSIVE */
+
+@media (max-width: 900px) {
+  .asistencias-page .search-bar input {
+    width: 100%;
+  }
+}
+
+@media (max-width: 680px) {
+  .asistencias-page .card {
+    overflow-x: auto;
+  }
+
+  .asistencias-page .table {
+    min-width: 640px;
+  }
+}
