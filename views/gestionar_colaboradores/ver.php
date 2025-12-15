@@ -1,4 +1,3 @@
-<?php ob_start(); ?>
 <div class="page-header">
     <h1>Detalle de colaborador</h1>
     <?php if ($colaborador): ?>
@@ -52,5 +51,5 @@
         <?php endif; ?>
     </div>
 <?php endif; ?>
-<?php $content = ob_get_clean(); ?>
+
 

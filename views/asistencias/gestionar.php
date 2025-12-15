@@ -1,5 +1,3 @@
-<?php ob_start(); ?>
-
 <div class="page-header">
     <h1>Gestionar asistencias</h1>
 
@@ -65,4 +63,3 @@
     </tbody>
 </table>
 
-<?php $content = ob_get_clean(); ?>

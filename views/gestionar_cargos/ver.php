@@ -1,4 +1,3 @@
-<?php ob_start(); ?>
 <div class="page-header">
     <h1>Detalle de cargo</h1>
     <?php if ($cargo): ?>
@@ -71,5 +70,4 @@
         </tbody>
     </table>
 <?php endif; ?>
-<?php $content = ob_get_clean(); ?>
 
