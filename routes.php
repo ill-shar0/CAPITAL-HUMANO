@@ -10,15 +10,21 @@ $page = $_GET['page'] ?? $defaultPage;
 $routes = [
     'gestionar_usuarios' => 'usuarios.php',
     'cambiar_pw' => 'usuarios.php',
+
     'gestionar_colaboradores' => 'colaboradores.php',
     'ver_colaborador' => 'colaboradores.php',
+    
     'ver_historial_cargos' => 'colaboradores.php',
     'gestionar_cargos' => 'cargos.php',
     'ver_cargo' => 'cargos.php',
     'asignar_cargo' => 'cargos.php',
+    
     'registrar_asistencia' => 'asistencias.php',
     'ver_asistencias_personal' => 'asistencias.php',
     'gestionar_asistencias' => 'asistencias.php',
+    'editar_asistencia' => 'asistencias.php',
+    'eliminar_asistencia' => 'asistencias.php',
+
     'gestionar_vacaciones' => 'vacaciones.php',
     'generar_resuelto' => 'vacaciones.php',
     'reporte_colaborador_sueldo' => 'reportes.php',

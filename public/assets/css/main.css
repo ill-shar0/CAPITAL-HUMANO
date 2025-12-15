@@ -907,3 +907,101 @@ body {
   gap: 8px;
 }
 
+/* ===============================
+   ASISTENCIAS
+================================ */
+
+.asistencia-search {
+    display: flex;
+    gap: 10px;
+    margin: 12px 0;
+}
+
+.asistencia-search input {
+    flex: 1;
+    padding: 8px 10px;
+    border-radius: 6px;
+    border: 1px solid #cbd5e1;
+}
+
+.asistencia-card,
+.asistencia-form-card {
+    background: #ffffff;
+    border-radius: 10px;
+    padding: 20px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+}
+
+.asistencia-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 12px;
+}
+
+.asistencia-table th {
+    background: #f1f5f9;
+    text-align: left;
+    padding: 10px;
+    font-weight: 600;
+}
+
+.asistencia-table td {
+    padding: 10px;
+    border-top: 1px solid #e5e7eb;
+}
+
+.asistencia-table tr:hover {
+    background: #f9fafb;
+}
+
+.asistencia-table .actions {
+    display: flex;
+    gap: 12px;
+}
+
+.asistencia-table .link {
+    font-size: 13px;
+    text-decoration: none;
+}
+
+.asistencia-table .link.edit {
+    color: #2563eb;
+}
+
+.asistencia-table .link.delete {
+    color: #dc2626;
+}
+
+.asistencia-table .empty {
+    text-align: center;
+    padding: 20px;
+    color: #64748b;
+}
+
+/* Formulario */
+.asistencia-form-card {
+    max-width: 420px;
+}
+
+.form-group {
+    margin-bottom: 14px;
+}
+
+.form-group label {
+    display: block;
+    font-weight: 600;
+    margin-bottom: 6px;
+}
+
+.form-group input {
+    width: 100%;
+    padding: 8px;
+    border-radius: 6px;
+    border: 1px solid #cbd5e1;
+}
+
+.form-actions {
+    display: flex;
+    gap: 10px;
+    margin-top: 16px;
+}

@@ -3,6 +3,7 @@ require_once BASE_PATH . '/middleware/auth.php';
 require_once BASE_PATH . '/services/Authz.php';
 require_once BASE_PATH . '/models/Asistencia.php';
 require_once BASE_PATH . '/models/Colaborador.php';
+require_once BASE_PATH . '/services/AuditService.php';
 
 $page = $_GET['page'] ?? 'registrar_asistencia';
 $messages = [];
@@ -136,6 +137,30 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             }
         }
     }
+}
+
+// Editar asistencia (formulario)
+if ($page === 'editar_asistencia') {
+    Authz::requireRoles(['administrador', 'recursos_humanos']);
+
+    $id = $_GET['id'] ?? null;
+    if (!$id) {
+        http_response_code(400);
+        echo 'ID de asistencia no proporcionado';
+        return;
+    }
+
+    $asistencia = Asistencia::find($id);
+    if (!$asistencia) {
+        http_response_code(404);
+        echo 'Asistencia no encontrada';
+        return;
+    }
+
+    render('asistencias/editar.php', [
+        'asistencia' => $asistencia,
+    ]);
+    return;
 }
 
 Authz::requireRoles(['colaborador', 'administrador', 'recursos_humanos']);
