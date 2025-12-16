@@ -235,11 +235,13 @@ if ($page === 'ver_colaborador') { // detalle de un colaborador
     $colaborador = $colaboradorId ? Colaborador::find($colaboradorId) : null;
     $cargoActual = $colaborador ? Cargo::findActivoByColaborador($colaboradorId) : null;
     $historialCargos = $colaborador ? Cargo::historialPorColaborador($colaboradorId) : [];
+    $cargos = Cargo::all();
 
     render('gestionar_colaboradores/ver.php', [
         'colaborador' => $colaborador,
         'cargoActual' => $cargoActual,
         'historialCargos' => $historialCargos,
+        'cargos' => $cargos,
         'messages' => $messages,
         'errors' => $errors,
     ]);

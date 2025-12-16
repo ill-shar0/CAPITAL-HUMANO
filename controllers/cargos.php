@@ -21,16 +21,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if ($action === 'create_cargo') { // crear nuevo cargo
         $nombre = s_str($_POST['nombre_cargo'] ?? '', 150);
         $departamento = s_str($_POST['departamento_cargo'] ?? '', 150);
+        $sueldo = s_str($_POST['sueldo_cargo'] ?? '', 50);
         $ocupacion = s_str($_POST['ocupacion'] ?? '', 255);
 
         $errors = array_merge($errors,
             v_required(['nombre' => $nombre], ['nombre' => 'Nombre del cargo']),
             v_alpha($nombre, 'Nombre del cargo'),
-            v_alpha($departamento, 'Departamento', true)
+            v_alpha($departamento, 'Departamento', true),
+            v_pattern($sueldo, 'Sueldo', '/^[0-9]+(\\.[0-9]{1,2})?$/', 'solo números y hasta 2 decimales')
         );
 
         if (empty($errors)) {
-            $newId = Cargo::create($nombre, $departamento, '', $ocupacion);
+            $newId = Cargo::create($nombre, $departamento, $sueldo, $ocupacion);
             if ($newId !== null) {
                 $messages[] = 'Cargo creado correctamente.';
                 AuditService::log($actorId, 'cargo', $newId, "Creó cargo {$nombre}");
@@ -44,6 +46,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $id = $_POST['cargo_id'] ?? '';
         $nombre = s_str($_POST['nombre_cargo'] ?? '', 150);
         $departamento = s_str($_POST['departamento_cargo'] ?? '', 150);
+        $sueldo = s_str($_POST['sueldo_cargo'] ?? '', 50);
         $ocupacion = s_str($_POST['ocupacion'] ?? '', 255);
 
         $errors = array_merge($errors,
@@ -52,11 +55,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 'nombre' => 'Nombre del cargo'
             ]),
             v_alpha($nombre, 'Nombre del cargo'),
-            v_alpha($departamento, 'Departamento', true)
+            v_alpha($departamento, 'Departamento', true),
+            v_pattern($sueldo, 'Sueldo', '/^[0-9]+(\\.[0-9]{1,2})?$/', 'solo números y hasta 2 decimales')
         );
 
         if (empty($errors)) {
-            if (Cargo::updateCargo($id, $nombre, $departamento, '', $ocupacion)) {
+            if (Cargo::updateCargo($id, $nombre, $departamento, $sueldo, $ocupacion)) {
                 $messages[] = 'Cargo actualizado.';
                 AuditService::log($actorId, 'cargo', $id, "Actualizó cargo {$nombre}");
             } else {
