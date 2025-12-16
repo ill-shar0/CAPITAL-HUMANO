@@ -30,7 +30,22 @@
     </form>
 
     <div>
-        <table class="table">
+        <style>
+            .clean-table {
+                font-size: 13px;
+            }
+            .clean-table th,
+            .clean-table td { border: 0; padding: 8px 6px; vertical-align: middle; }
+            .clean-table tbody tr { border-bottom: 1px solid #f2f2f2; }
+            .actions-col {
+                display: flex;
+                gap: 8px;
+                align-items: center;
+                flex-wrap: wrap;
+            }
+            .actions-col .btn-link { white-space: nowrap; font-size: 12px; }
+        </style>
+        <table class="table clean-table">
             <thead>
                 <tr>
                     <th>ID</th>
@@ -48,25 +63,12 @@
                             <td><?= htmlspecialchars($cargo['nombre_cargo']) ?></td>
                             <td><?= htmlspecialchars($cargo['departamento_cargo']) ?></td>
                             <td><?= htmlspecialchars($cargo['sueldo_cargo']) ?></td>
-                            <td class="actions">
+                            <td class="actions-col">
                                 <a class="btn-link" href="<?= BASE_URL ?>/index.php?page=ver_cargo&id=<?= urlencode($cargo['cargo_id']) ?>">Ver</a>
                                 <form method="post" class="inline-form">
                                     <input type="hidden" name="action" value="delete_cargo">
                                     <input type="hidden" name="cargo_id" value="<?= htmlspecialchars($cargo['cargo_id']) ?>">
                                     <button class="btn-link danger" type="submit">Eliminar</button>
-                                </form>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td colspan="5">
-                                <form method="post" class="inline-form">
-                                    <input type="hidden" name="action" value="update_cargo">
-                                    <input type="hidden" name="cargo_id" value="<?= htmlspecialchars($cargo['cargo_id']) ?>">
-                                    <input type="text" name="nombre_cargo" value="<?= htmlspecialchars($cargo['nombre_cargo']) ?>" placeholder="Nombre" required pattern="^[A-Za-z\s]+$" title="Solo letras y espacios">
-                                    <input type="text" name="departamento_cargo" value="<?= htmlspecialchars($cargo['departamento_cargo']) ?>" placeholder="Departamento" pattern="^[A-Za-z\s]+$" title="Solo letras y espacios">
-                                    <input type="text" name="sueldo_cargo" value="<?= htmlspecialchars($cargo['sueldo_cargo']) ?>" placeholder="Sueldo" required pattern="^[0-9]+(\.[0-9]{1,2})?$" title="Solo números y hasta 2 decimales">
-                                    <input type="text" name="ocupacion" value="<?= htmlspecialchars($cargo['ocupacion']) ?>" placeholder="Ocupación" pattern="^[A-Za-z\s]+$" title="Solo letras y espacios">
-                                    <button class="btn secondary" type="submit">Actualizar</button>
                                 </form>
                             </td>
                         </tr>
